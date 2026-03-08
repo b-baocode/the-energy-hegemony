@@ -248,13 +248,20 @@ export default function App() {
     const playersSub = supabase
       .channel('players_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, (payload: any) => {
-        setPlayers(prev => {
-          const index = prev.findIndex(p => p.id === payload.new.id);
-          if (index === -1) return [...prev, payload.new as Player];
-          const next = [...prev];
-          next[index] = payload.new as Player;
-          return next;
-        });
+        // Xử lý đủ 3 loại sự kiện: INSERT, UPDATE, DELETE
+        if (payload.eventType === 'DELETE') {
+          // Xóa khỏi state khi bị delete
+          setPlayers(prev => prev.filter(p => p.id !== payload.old.id));
+        } else {
+          // INSERT hoặc UPDATE
+          setPlayers(prev => {
+            const index = prev.findIndex(p => p.id === payload.new.id);
+            if (index === -1) return [...prev, payload.new as Player];
+            const next = [...prev];
+            next[index] = payload.new as Player;
+            return next;
+          });
+        }
       }).subscribe();
 
     return () => {
@@ -316,11 +323,20 @@ export default function App() {
   };
 
   const handleReset = async () => {
-    // Reset game state
+    // 1. Reset game state
     await supabase.from('game_state').update(INITIAL_GAME_STATE).eq('id', 'global');
-    // Xóa hết players cũ (tránh duplicate) rồi insert lại đúng 7 nhóm
+    
+    // 2. Xóa hết players cũ
     await supabase.from('players').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('players').insert(INITIAL_PLAYERS);
+    
+    // 3. Xóa state cục bộ trước khi insert mới (tránh subscriber cộng dồn)
+    setPlayers([]);
+    
+    // 4. Insert lại đúng 7 nhóm sạch
+    const { data: newPlayers } = await supabase.from('players').insert(INITIAL_PLAYERS).select();
+    if (newPlayers) setPlayers(newPlayers);
+    
+    // 5. Về màn hình chọn nhóm
     setCurrentPlayer(null);
     setView('SELECT_ROLE');
   };
