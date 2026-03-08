@@ -34,6 +34,7 @@ export interface GameState {
   ss: number;   // Social Stability (Ổn định xã hội)
   grid_limit: number;
   current_event: string | null;
+  next_event_prediction: string | null;
   is_game_over: boolean;
   history: {
     round: number;

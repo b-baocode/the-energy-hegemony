@@ -8,6 +8,7 @@ export const INITIAL_GAME_STATE: GameState = {
   ss: 100,
   grid_limit: 1000,
   current_event: null,
+  next_event_prediction: null,
   is_game_over: false,
   history: [{ round: 1, eh: 100, ss: 100, grid_limit: 1000 }]
 };
@@ -228,48 +229,63 @@ export function processRound(
   // ── Step 11: Game over check ──────────────────────────────────────────────
   const isGameOver = eh < 20 || ss < 20 || round >= 20;
 
+  const nextRoundNumber = round + 1;
+  let nextEventPrediction = currentState.next_event_prediction;
+  
+  // Nếu vòng tới chia hết cho 3 → vòng này random sự kiện và gắn cảnh báo
+  if (nextRoundNumber % 3 === 0) {
+    const fakeStateForPrediction = { ...currentState };
+    const evt = triggerEvent(fakeStateForPrediction);
+    nextEventPrediction = evt.current_event || null;
+  }
+  // Xóa cảnh báo nếu vòng sắp tới không chia hết cho 3
+  if (nextRoundNumber % 3 !== 0) {
+    nextEventPrediction = null;
+  }
+
   const nextState: GameState = {
     ...currentState,
-    round: round + 1,
+    round: nextRoundNumber,
     eh,
     ss,
     grid_limit: Math.round(grid_limit),
     is_game_over: isGameOver,
-    history: [...history, { round: round + 1, eh, ss, grid_limit: Math.round(grid_limit) }],
+    history: [...history, { round: nextRoundNumber, eh, ss, grid_limit: Math.round(grid_limit) }],
     current_event: null,
+    next_event_prediction: nextEventPrediction,
   };
 
   return { nextState, updatedPlayers };
 }
 
-export function triggerEvent(state: GameState): Partial<GameState> {
-  const events = [
-    {
-      name: 'Bão lũ — Hạ tầng lưới điện thiệt hại nặng',
-      impact: { grid_limit: Math.round(state.grid_limit * 0.7) }
-    },
-    {
-      name: 'Khủng hoảng nhiên liệu — Chi phí sản xuất tăng vọt',
-      impact: { eh: Math.max(20, state.eh - 10) }
-    },
-    {
-      name: 'Cách mạng xanh — Chính phủ trợ cấp năng lượng tái tạo',
-      impact: { ss: Math.min(100, state.ss + 10) }
-    },
-    {
-      name: 'Biểu tình — Người dân phản đối giá điện cao',
-      impact: { ss: Math.max(20, state.ss - 15) }
-    },
-    {
-      name: 'Đầu tư ngoại — Vốn FDI vào ngành điện',
-      impact: { eh: Math.min(100, state.eh + 8) }
-    },
-  ];
+export const EVENTS = [
+  {
+    name: 'Bão lũ — Hạ tầng lưới điện thiệt hại nặng',
+    impact: (state: GameState) => ({ grid_limit: Math.round(state.grid_limit * 0.7) })
+  },
+  {
+    name: 'Khủng hoảng nhiên liệu — Chi phí sản xuất tăng vọt',
+    impact: (state: GameState) => ({ eh: Math.max(20, state.eh - 10) })
+  },
+  {
+    name: 'Cách mạng xanh — Chính phủ trợ cấp năng lượng tái tạo',
+    impact: (state: GameState) => ({ ss: Math.min(100, state.ss + 10) })
+  },
+  {
+    name: 'Biểu tình — Người dân phản đối giá điện cao',
+    impact: (state: GameState) => ({ ss: Math.max(20, state.ss - 15) })
+  },
+  {
+    name: 'Đầu tư ngoại — Vốn FDI vào ngành điện',
+    impact: (state: GameState) => ({ eh: Math.min(100, state.eh + 8) })
+  },
+];
 
-  const randomEvent = events[Math.floor(Math.random() * events.length)];
+export function triggerEvent(state: GameState): Partial<GameState> {
+  const randomEvent = EVENTS[Math.floor(Math.random() * EVENTS.length)];
   return {
     current_event: randomEvent.name,
-    ...randomEvent.impact,
+    ...randomEvent.impact(state),
   };
 }
 

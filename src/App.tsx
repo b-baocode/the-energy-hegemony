@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { GameState, Player, ROLE_PREFIX, getDisplayName } from './types/game';
-import { INITIAL_GAME_STATE, INITIAL_PLAYERS, processRound, triggerEvent } from './lib/gameEngine';
+import { INITIAL_GAME_STATE, INITIAL_PLAYERS, processRound, triggerEvent, EVENTS } from './lib/gameEngine';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PlayerControls } from './components/PlayerControls';
 import { ShieldAlert, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
@@ -301,11 +301,22 @@ export default function App() {
   };
 
   const handleProcessRound = async () => {
+    // nextState was just computed for the NEXT round (e.g., we selected options in Round 2, now nextState is Round 3)
     const { nextState, updatedPlayers } = processRound(gameState, players);
     let finalState = nextState;
-    if (nextState.round % 3 === 0) {
-      const eventImpact = triggerEvent(nextState);
-      finalState = { ...nextState, ...eventImpact };
+    
+    // Nếu vòng HIỆN TẠI (vừa chơi xong, chuẩn bị sang vòng mới mà vòng mới % 3 === 0) 
+    // thì áp dụng Cảnh Báo từ vòng trước (gameState.next_event_prediction)
+    if (nextState.round % 3 === 0 && gameState.next_event_prediction) {
+      // Find the event impact that matches the prediction
+      const predictedEvent = EVENTS.find(e => e.name === gameState.next_event_prediction);
+      if (predictedEvent) {
+        finalState = { 
+          ...nextState, 
+          current_event: predictedEvent.name,
+          ...predictedEvent.impact(nextState) 
+        };
+      }
     }
 
     const { error: stateError } = await supabase
