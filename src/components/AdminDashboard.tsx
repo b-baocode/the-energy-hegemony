@@ -264,53 +264,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         ))}
       </AnimatePresence>
 
-      {/* Start Game Overlay */}
-      <AnimatePresence>
-        {!gameState.is_started && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#86efac]/90 backdrop-blur-md"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="max-w-md w-full bg-white p-12 rounded-[2.5rem] game-border-blue text-center shadow-2xl"
-            >
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8">
-                <Play className="w-10 h-10 text-blue-600 fill-current ml-1" />
-              </div>
-              <h2 className="text-4xl font-mono font-bold text-blue-900 mb-4 uppercase tracking-tighter text-center">Hegemony</h2>
-              <p className="text-blue-600/60 font-mono text-xs mb-10 uppercase tracking-widest text-center">Sẵn sàng để điều hành hệ thống?</p>
-              
-              <div className="bg-blue-50 border-2 border-blue-100 rounded-2xl p-6 mb-10 text-left">
-                <div className="text-[10px] font-mono font-bold text-blue-400 uppercase mb-3 text-center">Trạng thái hiện tại</div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-bold text-blue-900 uppercase">Nhóm đã join:</span>
-                  <span className="text-lg font-mono font-bold text-blue-600">{players.length}</span>
-                </div>
-              </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={onStartGame}
-                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-mono font-bold text-xl uppercase tracking-widest transition-all hover:bg-blue-500 border-b-4 border-blue-800 shadow-lg"
-              >
-                Bắt đầu ngay
-              </motion.button>
-              
-              <button 
-                onClick={onReset}
-                className="mt-6 text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors"
-              >
-                ← Xóa trắng data để join lại
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <header className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-white/90 p-6 game-border-blue rounded-2xl">
         <div className="text-center md:text-left">
@@ -524,7 +478,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </button>
         </div>
 
-        {!allReady && (
+        {/* Start Game button — only when game hasn't started yet */}
+        {!gameState.is_started && (
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onStartGame}
+            className="w-full py-5 bg-green-500 text-white rounded-2xl font-mono font-bold text-xl uppercase tracking-widest border-4 border-green-700 shadow-[0_6px_0_#166534] hover:bg-green-400 flex items-center justify-center gap-3"
+          >
+            <Play className="w-6 h-6 fill-white" /> Bắt Đầu Game
+          </motion.button>
+        )}
+
+        {!allReady && gameState.is_started && (
           <button
             onClick={onProcessRound}
             className="w-full py-3 bg-white/50 border-2 border-dashed border-blue-300 rounded-xl text-[10px] font-mono font-bold uppercase text-blue-400 hover:bg-white hover:text-blue-600 transition-all"
