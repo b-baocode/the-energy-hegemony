@@ -284,19 +284,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <h2 className="text-4xl font-mono font-bold text-blue-900 mb-4 uppercase tracking-tighter text-center">Hegemony</h2>
               <p className="text-blue-600/60 font-mono text-xs mb-10 uppercase tracking-widest text-center">Sẵn sàng để điều hành hệ thống?</p>
               
-              <div className="bg-blue-50 border-2 border-blue-100 rounded-2xl p-6 mb-10 text-left">
-                <div className="text-[10px] font-mono font-bold text-blue-400 uppercase mb-3 text-center">Trạng thái hiện tại</div>
-                <div className="flex justify-between items-center">
+              <div className="bg-blue-50 border-2 border-blue-100 rounded-2xl p-6 mb-8 text-left">
+                <div className="text-[10px] font-mono font-bold text-blue-400 uppercase mb-3 text-center">Tiến độ chuẩn bị</div>
+                <div className="flex justify-between items-center mb-4">
                   <span className="text-sm font-bold text-blue-900 uppercase">Nhóm đã join:</span>
                   <span className="text-lg font-mono font-bold text-blue-600">{players.length}</span>
                 </div>
+                
+                {players.length > 0 && (
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                    {players.map(p => {
+                      const isNamed = !!p.custom_name;
+                      return (
+                        <div key={p.id} className="flex items-center justify-between text-[11px] font-mono bg-white/50 rounded-lg px-3 py-1.5">
+                          <span className={`${isNamed ? 'text-blue-900 font-bold' : 'text-gray-400'}`}>
+                            {p.group_name}
+                          </span>
+                          <span className={`uppercase font-bold ${isNamed ? 'text-green-500' : 'text-orange-400 animate-pulse'}`}>
+                            {isNamed ? '✓ Done' : '... Naming'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
+              {players.length > 0 && players.some(p => !p.custom_name) && (
+                <div className="mb-6 p-3 bg-orange-50 border-2 border-orange-100 rounded-xl flex items-center gap-3">
+                  <ShieldAlert className="w-5 h-5 text-orange-500 shrink-0" />
+                  <p className="text-[10px] font-mono text-orange-700 text-left leading-tight uppercase font-bold">
+                    Chờ tất cả các nhóm đặt tên xong mới có thể bắt đầu.
+                  </p>
+                </div>
+              )}
+
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={players.length === 0 || players.some(p => !p.custom_name) ? {} : { scale: 1.02 }}
+                whileTap={players.length === 0 || players.some(p => !p.custom_name) ? {} : { scale: 0.98 }}
                 onClick={onStartGame}
-                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-mono font-bold text-xl uppercase tracking-widest transition-all hover:bg-blue-500 border-b-4 border-blue-800 shadow-lg"
+                disabled={players.length === 0 || players.some(p => !p.custom_name)}
+                className={`w-full py-5 rounded-2xl font-mono font-bold text-xl uppercase tracking-widest transition-all border-b-4 shadow-lg ${
+                  players.length > 0 && players.every(p => p.custom_name)
+                    ? 'bg-blue-600 text-white hover:bg-blue-500 border-blue-800'
+                    : 'bg-gray-200 text-gray-400 border-gray-300 cursor-not-allowed'
+                }`}
               >
                 Bắt đầu ngay
               </motion.button>
