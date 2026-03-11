@@ -136,7 +136,7 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({ player, gameStat
               {player.role} Sector
             </div>
             <div className="text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
-              Công thức: {player.role === 'GENCO' ? 'Balance + GP×15' : player.role === 'CONSUMER' ? 'GDP×2 + Balance' : 'Balance + (EH+SS)×8'}
+              Công thức: {player.role === 'GENCO' ? 'Balance + GP×20' : player.role === 'CONSUMER' ? 'GDP×2 + Balance' : 'Balance + (EH+SS)×10'}
             </div>
           </div>
         </div>
@@ -321,6 +321,414 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({ player, gameStat
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ── Detailed Strategy Guide ─────────────────────────────────────────── */}
+      <div className="mt-8 bg-white rounded-2xl game-border-blue p-4">
+        <h3 className="text-sm font-mono font-bold uppercase text-blue-600 mb-4 text-center tracking-widest">
+          📖 Hướng Dẫn Chi Tiết — {player.role}
+        </h3>
+
+        {player.role === 'GENCO' && (
+          <div className="space-y-4 text-sm">
+            <div className="text-xs font-mono text-gray-500 mb-3 text-center">
+              🎯 <b>Mục tiêu:</b> Tối đa hóa <span className="text-green-600 font-bold">Balance + Green Points × 20</span>
+            </div>
+
+            {/* OP-01 */}
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-yellow-800">OP-01: Tăng công suất</span>
+                <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded font-bold">💰 Tiền nhanh</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• +$350 bonus cố định</li>
+                    <li>• Sản lượng phát điện +40%</li>
+                    <li>• Doanh thu cao hơn nhiều</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• SS giảm <b>-5</b> (khai thác môi trường)</li>
+                    <li>• Spam nhiều → SS sụp → mất 70% điểm</li>
+                    <li>• Không có Green Points</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> SS đang cao (trên 60), cần tiền gấp, hoặc kịch bản có hệ số cao (×1.3+).
+              </div>
+            </div>
+
+            {/* OP-02 */}
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-blue-800">OP-02: Bảo trì máy</span>
+                <span className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded font-bold">🛡️ An toàn</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• Chi phí giảm 50%</li>
+                    <li>• Thưởng uy tín +$150</li>
+                    <li>• SS tăng <b>+3</b> (dân tin tưởng)</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• Lợi nhuận trung bình</li>
+                    <li>• Không có Green Points</li>
+                    <li>• Không chiếm ưu thế doanh thu</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> SS đang thấp (dưới 50), muốn chơi an toàn, hoặc kịch bản hệ số thấp.
+              </div>
+            </div>
+
+            {/* OP-03 */}
+            <div className="bg-purple-50 border-2 border-purple-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-purple-800">OP-03: Lobby EVN</span>
+                <span className="text-xs bg-purple-200 text-purple-800 px-2 py-0.5 rounded font-bold">🤝 Quan hệ</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• Chiếm <b>60%</b> tổng doanh thu GENCO</li>
+                    <li>• +3 Green Points (×20 = 60 điểm)</li>
+                    <li>• Rất mạnh khi sản lượng cao</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• Phí lobby -$150</li>
+                    <li>• Các GENCO khác chỉ còn 40%</li>
+                    <li>• Chỉ 1 GENCO lobby được/vòng</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> Kịch bản hệ số cao (×1.5+), muốn chèn ép GENCO đối thủ.
+              </div>
+            </div>
+
+            {/* OP-04 */}
+            <div className="bg-green-50 border-2 border-green-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-green-800">OP-04: Chuyển đổi Xanh</span>
+                <span className="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded font-bold">🌿 Dài hạn</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• <b>+15 Green Points</b> (×20 = 300 điểm!)</li>
+                    <li>• +$250 bonus</li>
+                    <li>• SS tăng <b>+5</b> (bền vững)</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• Tiền mặt không cao bằng OP-01</li>
+                    <li>• Không chiếm ưu thế doanh thu</li>
+                    <li>• Hiệu quả chủ yếu cuối game</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> Chơi dài hạn — 10 vòng OP-04 = 3,000 điểm từ GP. Rất mạnh nếu game đi đủ 20 vòng!
+              </div>
+            </div>
+          </div>
+        )}
+
+        {player.role === 'CONSUMER' && (
+          <div className="space-y-4 text-sm">
+            <div className="text-xs font-mono text-gray-500 mb-3 text-center">
+              🎯 <b>Mục tiêu:</b> Tối đa hóa <span className="text-blue-600 font-bold">GDP × 2 + Balance</span>
+            </div>
+
+            {/* OP-01 */}
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-yellow-800">OP-01: Mở rộng xưởng</span>
+                <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded font-bold">📈 GDP cao</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• GDP tăng cao nhất (+120 gốc + bonus)</li>
+                    <li>• GDP × 2 trong công thức → rất giá trị</li>
+                    <li>• Mở rộng sản xuất = lợi thế dài hạn</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• Tiền mất <b>-$100</b></li>
+                    <li>• Cầu điện tăng +20%</li>
+                    <li>• EH giảm nếu Grid không đủ</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> Grid còn dư nhiều, EH còn cao, muốn tăng điểm nhanh.
+              </div>
+            </div>
+
+            {/* OP-02 */}
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-blue-800">OP-02: Tiết kiệm điện</span>
+                <span className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded font-bold">💰 Kiếm tiền</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• Tiền <b>+$180</b></li>
+                    <li>• SS tăng <b>+8</b> (rất cao!)</li>
+                    <li>• Cầu điện giảm -15% → giúp hệ thống</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• GDP chỉ +20 (thấp nhất)</li>
+                    <li>• Không mở rộng được sản xuất</li>
+                    <li>• Thua GDP so với đối thủ</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> SS đang thấp (dưới 40), cần cứu hệ thống, hoặc cần tiền gấp.
+              </div>
+            </div>
+
+            {/* OP-03 */}
+            <div className="bg-red-50 border-2 border-red-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-red-800">OP-03: Bãi công đòi giá</span>
+                <span className="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">✊ Đấu tranh</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• GDP +60 (trung bình)</li>
+                    <li>• Chi phí thấp chỉ -$50</li>
+                    <li>• Đại diện quyền lợi công nhân</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• SS giảm <b>-8</b> (mâu thuẫn giai cấp)</li>
+                    <li>• Có thể gây sụp đổ nếu SS thấp</li>
+                    <li>• Không tốt cho hệ thống</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> SS đang cao, EVN tăng phí và bạn muốn phản đối.
+              </div>
+            </div>
+
+            {/* OP-04 */}
+            <div className="bg-green-50 border-2 border-green-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-green-800">OP-04: Hỗ trợ hạ tầng</span>
+                <span className="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded font-bold">🔌 Nâng Grid</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• Grid <b>+100 MW</b></li>
+                    <li>• EH <b>+4</b></li>
+                    <li>• GDP +70 (khá tốt)</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• Tiền mất <b>-$200</b> (cao nhất)</li>
+                    <li>• Hy sinh cá nhân cho hệ thống</li>
+                    <li>• Lợi ích chia đều cho mọi người</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> Grid sắp đầy (gần 1000 MW), EH đang thấp, cần cứu hệ thống.
+              </div>
+            </div>
+
+            {/* EVN Impact Warning */}
+            <div className="bg-orange-50 border-2 border-orange-400 rounded-xl p-3">
+              <div className="font-mono font-bold text-orange-800 mb-2">⚠️ Ảnh hưởng từ EVN:</div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700">EVN Áp trần giá bán:</div>
+                  <div className="text-green-800">Bạn được <b>+$80</b> và <b>+25 GDP</b></div>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700">EVN Tăng phí vận chuyển:</div>
+                  <div className="text-red-800">Bạn mất <b>-$150</b> và <b>-15 GDP</b></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {player.role === 'EVN' && (
+          <div className="space-y-4 text-sm">
+            <div className="text-xs font-mono text-gray-500 mb-3 text-center">
+              🎯 <b>Mục tiêu:</b> Tối đa hóa <span className="text-red-600 font-bold">Balance + (EH + SS) × 10</span>
+            </div>
+            <div className="text-xs bg-blue-50 border border-blue-200 rounded-lg p-2 mb-3 text-center">
+              💵 <b>Thu nhập tự động mỗi vòng:</b> Phí truyền tải (realEnergy × 0.15) + Trợ cấp nhà nước <b>+$350</b>
+            </div>
+
+            {/* OP-01 */}
+            <div className="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-yellow-800">OP-01: Nâng cấp lưới</span>
+                <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded font-bold">🔌 Hạ tầng</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• Grid <b>×1.2</b> (tăng 20%)</li>
+                    <li>• Toàn hệ thống hưởng lợi</li>
+                    <li>• Tăng phí truyền tải dài hạn</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• Chi phí <b>-$900</b> (cao nhất)</li>
+                    <li>• Tốn tiền ngay lập tức</li>
+                    <li>• Hiệu quả chậm</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> Grid đang nghẽn, còn nhiều tiền, muốn đầu tư dài hạn.
+              </div>
+            </div>
+
+            {/* OP-02 */}
+            <div className="bg-blue-50 border-2 border-blue-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-blue-800">OP-02: Áp trần giá bán</span>
+                <span className="text-xs bg-blue-200 text-blue-800 px-2 py-0.5 rounded font-bold">👥 Vì dân</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• SS <b>+15</b> (rất cao!)</li>
+                    <li>• Mỗi CONSUMER +$80 & +25 GDP</li>
+                    <li>• SS × 10 → +150 điểm cuối</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• Chi phí <b>-$700</b></li>
+                    <li>• Hy sinh lợi nhuận</li>
+                    <li>• Giúp CONSUMER cạnh tranh</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> SS đang thấp (dưới 50), cần cứu hệ thống, hoặc chơi chiến lược "vì cộng đồng".
+              </div>
+            </div>
+
+            {/* OP-03 */}
+            <div className="bg-red-50 border-2 border-red-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-red-800">OP-03: Tăng phí vận chuyển</span>
+                <span className="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded font-bold">💸 Thu tô</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• Tiền <b>+$350</b> ngay lập tức</li>
+                    <li>• Tận dụng quyền lực độc quyền</li>
+                    <li>• Tiền mặt = an toàn</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• SS <b>-8</b></li>
+                    <li>• Mỗi CONSUMER -$150 & -15 GDP</li>
+                    <li>• SS × 10 → mất 80 điểm cuối</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> SS đang cao (trên 70), cần tiền gấp. ⚠️ Cẩn thận: +$350 nhưng mất 80 điểm từ SS!
+              </div>
+            </div>
+
+            {/* OP-04 */}
+            <div className="bg-orange-50 border-2 border-orange-300 rounded-xl p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono font-bold text-orange-800">OP-04: Cắt điện luân phiên</span>
+                <span className="text-xs bg-orange-200 text-orange-800 px-2 py-0.5 rounded font-bold">⚡ Khẩn cấp</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-green-100 rounded-lg p-2">
+                  <div className="font-bold text-green-700 mb-1">✅ Ưu điểm:</div>
+                  <ul className="text-green-800 space-y-0.5">
+                    <li>• Grid <b>+200 MW</b> (cao nhất!)</li>
+                    <li>• Không tốn tiền</li>
+                    <li>• Giải pháp khẩn cấp khi Grid nghẽn</li>
+                  </ul>
+                </div>
+                <div className="bg-red-100 rounded-lg p-2">
+                  <div className="font-bold text-red-700 mb-1">❌ Nhược điểm:</div>
+                  <ul className="text-red-800 space-y-0.5">
+                    <li>• EH <b>-4</b></li>
+                    <li>• SS <b>-10</b> (dân bức xúc)</li>
+                    <li>• Tổng mất 140 điểm từ EH+SS!</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-600 italic">
+                💡 <b>Khi nào chọn:</b> Grid đã hết, không đủ tiền nâng cấp, EH và SS còn cao để chịu được.
+              </div>
+            </div>
+
+            {/* EVN Special Note */}
+            <div className="bg-purple-50 border-2 border-purple-400 rounded-xl p-3">
+              <div className="font-mono font-bold text-purple-800 mb-2">🏛️ Vai trò đặc biệt của EVN:</div>
+              <ul className="text-xs text-purple-900 space-y-1">
+                <li>• Bạn là <b>nhóm duy nhất</b> — không có đối thủ cùng role.</li>
+                <li>• Kiểm soát <b>Grid Limit</b> = nút thắt cổ chai của cả hệ thống.</li>
+                <li>• Quyết định của bạn <b>ảnh hưởng trực tiếp</b> tới 3 nhóm CONSUMER.</li>
+                <li>• Công thức (EH+SS)×10: Nếu giữ EH=100, SS=100 → <b>+2,000 điểm</b>!</li>
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
