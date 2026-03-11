@@ -10,6 +10,7 @@ export const INITIAL_GAME_STATE: GameState = {
   current_event: null,
   next_event_prediction: null,
   is_game_over: false,
+  waiting_for_admin_confirm: false,
   history: [{ round: 1, eh: 100, ss: 100, grid_limit: 1000 }]
 };
 
@@ -23,27 +24,27 @@ export const INITIAL_PLAYERS: Partial<Player>[] = [
   { group_name: 'G7', role: 'EVN', balance: 5000, gdp_score: 0, green_points: 0 },
 ];
 
-export const SCENARIOS = [
-  { name: 'Khởi đầu bình ổn', multiplier: 1.0 },
-  { name: 'Tăng trưởng nóng', multiplier: 1.2 },
-  { name: 'Khủng hoảng nhẹ', multiplier: 0.8 },
-  { name: 'Đại dịch', multiplier: 0.5 },
-  { name: 'Cách mạng công nghiệp', multiplier: 1.5 },
-  { name: 'Cấm vận kinh tế', multiplier: 0.7 },
-  { name: 'Mùa hè rực lửa', multiplier: 1.3 },
-  { name: 'Mùa đông băng giá', multiplier: 0.9 },
-  { name: 'Đình trệ', multiplier: 0.6 },
-  { name: 'Phục hồi', multiplier: 1.1 },
-  { name: 'Đỉnh cao hegemony', multiplier: 2.0 },
-  { name: 'Thoái trào', multiplier: 0.4 },
-  { name: 'Tái cấu trúc', multiplier: 1.0 },
-  { name: 'Bùng nổ dân số', multiplier: 1.4 },
-  { name: 'Thiên tai liên miên', multiplier: 0.3 },
-  { name: 'Hòa bình xanh', multiplier: 1.0 },
-  { name: 'Chiến tranh thương mại', multiplier: 0.75 },
-  { name: 'Kỷ nguyên số', multiplier: 1.6 },
-  { name: 'Cạn kiệt tài nguyên', multiplier: 0.5 },
-  { name: 'Ngày tận thế', multiplier: 0.1 },
+export const SCENARIOS: { name: string; multiplier: number; description: string }[] = [
+  { name: 'Khởi đầu bình ổn',     multiplier: 1.0, description: 'Thị trường điện cân bằng. Cung cầu ổn định, không có biến động đặc biệt.' },
+  { name: 'Tăng trưởng nóng',     multiplier: 1.2, description: 'Kinh tế mở rộng nhanh. Nhu cầu điện tăng 20%, doanh thu GENCO cao hơn.' },
+  { name: 'Khủng hoảng nhẹ',      multiplier: 0.8, description: 'Tín dụng thắt chặt, sản xuất chậm lại. Cung và cầu đều giảm 20%.' },
+  { name: 'Đại dịch',             multiplier: 0.5, description: 'Phong tỏa toàn quốc. Sản xuất và tiêu dùng điện giảm một nửa.' },
+  { name: 'Cách mạng công nghiệp', multiplier: 1.5, description: 'Công nghệ tự động hóa bùng nổ. Tiêu thụ điện công nghiệp tăng vọt 50%.' },
+  { name: 'Cấm vận kinh tế',      multiplier: 0.7, description: 'Bị cắt nguồn nguyên liệu nhập khẩu. Sản lượng phát điện giảm 30%.' },
+  { name: 'Mùa hè rực lửa',       multiplier: 1.3, description: 'Nắng nóng cực đoan. Điều hòa không khí đẩy cầu điện lên +30%.' },
+  { name: 'Mùa đông băng giá',    multiplier: 0.9, description: 'Lạnh giá làm giảm hiệu suất nhà máy. Cung giảm nhẹ 10%.' },
+  { name: 'Đình trệ',             multiplier: 0.6, description: 'Lạm phát cao, đầu tư đóng băng. Hoạt động kinh tế chỉ còn 60%.' },
+  { name: 'Phục hồi',             multiplier: 1.1, description: 'Kinh tế hồi phục sau khủng hoảng. Cầu điện tăng trở lại nhẹ nhàng.' },
+  { name: 'Đỉnh cao hegemony',    multiplier: 2.0, description: 'Thống trị thị trường năng lượng. Cung và cầu đều ở đỉnh — ai nắm lưới, nắm tất cả.' },
+  { name: 'Thoái trào',           multiplier: 0.4, description: 'Sụp đổ bong bóng kinh tế. Sản lượng điện chỉ còn 40% mức bình thường.' },
+  { name: 'Tái cấu trúc',         multiplier: 1.0, description: 'Cải cách thể chế năng lượng. Thị trường ổn định trong giai đoạn chuyển đổi.' },
+  { name: 'Bùng nổ dân số',       multiplier: 1.4, description: 'Di cư ồ ạt vào đô thị. Cầu điện dân sinh và công nghiệp tăng 40%.' },
+  { name: 'Thiên tai liên miên',  multiplier: 0.3, description: 'Lũ lụt, bão, động đất liên tiếp. Hạ tầng tê liệt, sản lượng chỉ còn 30%.' },
+  { name: 'Hòa bình xanh',        multiplier: 1.0, description: 'Hiệp ước môi trường toàn cầu. Thị trường ổn định, ưu tiên năng lượng tái tạo.' },
+  { name: 'Chiến tranh thương mại', multiplier: 0.75, description: 'Thuế quan trả đũa, chuỗi cung ứng đứt gãy. Hoạt động điện giảm 25%.' },
+  { name: 'Kỷ nguyên số',         multiplier: 1.6, description: 'Trung tâm dữ liệu và AI bùng nổ. Tiêu thụ điện số hóa tăng 60%.' },
+  { name: 'Cạn kiệt tài nguyên',  multiplier: 0.5, description: 'Than, khí đốt, dầu cạn dần. Chi phí sản xuất điện tăng gấp đôi, cung giảm 50%.' },
+  { name: 'Ngày tận thế',         multiplier: 0.1, description: 'Khủng hoảng văn minh toàn cầu. Chỉ 10% hạ tầng điện còn hoạt động. Ai sống sót?' },
 ];
 
 /**
@@ -108,7 +109,6 @@ export function processRound(
   // ── Step 6: Process GENCO finances ───────────────────────────────────────
   // Phân bổ doanh thu: lobby ưu tiên được 60%, còn lại chia đều
   const gencoCount = gencos.length;
-  const gencoRevPerUnit = (realEnergy / Math.max(1, totalGen));
 
   gencos.forEach(p => {
     const baseCost = 250 * multiplier;
@@ -123,7 +123,7 @@ export function processRound(
       myShare = realEnergy * 0.4 / Math.max(1, nonLobbyCount);
     } else {
       // Không lobby: chia đều
-      myShare = realEnergy / gencoCount;
+      myShare = realEnergy / Math.max(1, gencoCount);
     }
 
     const revenue = myShare * 1.2; // Đơn giá điện: 1.2$/MW
@@ -250,6 +250,7 @@ export function processRound(
     ss,
     grid_limit: Math.round(grid_limit),
     is_game_over: isGameOver,
+    waiting_for_admin_confirm: true, // Admin phải confirm trước khi sang vòng mới
     history: [...history, { round: nextRoundNumber, eh, ss, grid_limit: Math.round(grid_limit) }],
     current_event: null,
     next_event_prediction: nextEventPrediction,
@@ -260,23 +261,23 @@ export function processRound(
 
 export const EVENTS = [
   {
-    name: 'Bão lũ — Hạ tầng lưới điện thiệt hại nặng',
+    name: 'Bão lũ — Hạ tầng lưới điện thiệt hại nặng (-30% Grid)',
     impact: (state: GameState) => ({ grid_limit: Math.round(state.grid_limit * 0.7) })
   },
   {
-    name: 'Khủng hoảng nhiên liệu — Chi phí sản xuất tăng vọt',
+    name: 'Khủng hoảng nhiên liệu — Chi phí sản xuất tăng vọt (EH -10 điểm)',
     impact: (state: GameState) => ({ eh: Math.max(20, state.eh - 10) })
   },
   {
-    name: 'Cách mạng xanh — Chính phủ trợ cấp năng lượng tái tạo',
+    name: 'Cách mạng xanh — Chính phủ trợ cấp năng lượng tái tạo (SS +10 điểm)',
     impact: (state: GameState) => ({ ss: Math.min(100, state.ss + 10) })
   },
   {
-    name: 'Biểu tình — Người dân phản đối giá điện cao',
+    name: 'Biểu tình — Người dân phản đối giá điện cao (SS -15 điểm)',
     impact: (state: GameState) => ({ ss: Math.max(20, state.ss - 15) })
   },
   {
-    name: 'Đầu tư ngoại — Vốn FDI vào ngành điện',
+    name: 'Đầu tư ngoại FDI — Vốn vào ngành điện (EH +8 điểm)',
     impact: (state: GameState) => ({ eh: Math.min(100, state.eh + 8) })
   },
 ];
@@ -295,14 +296,28 @@ export function triggerEvent(state: GameState): Partial<GameState> {
  *   GENCO: balance + green_points × 20 (đầu tư dài hạn)
  *   CONSUMER: gdp_score × 2 + balance (tăng trưởng kinh tế)
  *   EVN: balance + (eh + ss) × 10 (ổn định hệ thống là ưu tiên)
+ *
+ * ÁN PHẠT SỤP ĐỔ SỚM:
+ *   Nếu hệ thống sụp đổ trước vòng 20 (is_game_over AND round < 20):
+ *   - GENCO & CONSUMER: điểm × 0.3 (bị phạt 70% — hành vi tư lợi phá hệ thống)
+ *   - EVN: MIỄN PHẠT (nhà nước chịu trách nhiệm, không thể tự phạt mình)
  */
 export function computeFinalScore(player: Player, gameState: GameState): number {
+  let score: number;
   if (player.role === 'GENCO') {
-    return Math.round(player.balance + player.green_points * 20);
+    score = Math.round(player.balance + player.green_points * 20);
   } else if (player.role === 'CONSUMER') {
-    return Math.round(player.gdp_score * 2 + player.balance);
+    score = Math.round(player.gdp_score * 2 + player.balance);
   } else {
-    // EVN
+    // EVN — miễn phạt sụp đổ sớm
     return Math.round(player.balance + (gameState.eh + gameState.ss) * 10);
   }
+
+  // Áp dụng án phạt nếu hệ thống sụp đổ trước vòng 20 (round < 21 vì round đã tăng sau processRound)
+  const isEarlyCollapse = gameState.is_game_over && gameState.round <= 20 && (gameState.eh < 20 || gameState.ss < 20);
+  if (isEarlyCollapse) {
+    score = Math.round(score * 0.3);
+  }
+
+  return score;
 }

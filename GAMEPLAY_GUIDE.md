@@ -18,63 +18,61 @@ Người chơi phải **đưa ra quyết định mỗi vòng** nhằm:
 
 ---
 
-## 👥 Các Vai Trò (Roles)
+## 👥 Các Vai Trò (Roles) & Các Lựa Chọn (Options)
 
 ### ⚡ GENCO — Nhà Sản Xuất Điện (G1, G2, G3)
 - **Tài sản ban đầu:** $2,000
-- Đại diện cho các tập đoàn phát điện tư nhân hoặc nhà nước
-- Mục tiêu: tối đa hóa **lợi nhuận (Balance)**
+- Đại diện cho các tập đoàn phát điện tư nhân hoặc nhà nước.
+- **Mục tiêu:** Tối đa hóa **lợi nhuận (Balance)**. Cạnh tranh giành doanh thu điện từ lưới.
 
-| Tùy Chọn | Tên | Ảnh Hưởng Cá Nhân | Ảnh Hưởng Hệ Thống |
-|---|---|---|---|
-| OP-01 | Tăng công suất | Tiền +30% | EH +5, SS -5 |
-| OP-02 | Bảo trì máy | Tiền -500 | EH ổn định |
-| OP-03 | Lobby truyền tải | Chiếm slot ưu tiên | EH ổn định, hại G khác |
-| OP-04 | Chuyển đổi Xanh | Điểm "Xanh" +10 | EH bền vững, SS +5 |
+| Tùy Chọn | Tác động Cá Nhân (Riêng) | Tác động Hệ Thống (Chung) |
+|---|---|---|
+| **OP-01: Tăng công suất** | Lãi gộp +$700 (tiền mặt). | Hệ thống +40% sản lượng điện. SS giảm 3% (ô nhiễm). |
+| **OP-02: Bảo trì máy** | Giảm 50% chi phí vận hành ở vòng hiện tại (chỉ tốn $125 thay vì $250). | Giữ vững sức khỏe kinh tế (EH) ổn định. |
+| **OP-03: Lobby EVN** | Chiếm trọn 60% tổng doanh thu điện toàn quốc (các nhóm khác chia nhau 40%). | Bất bình đẳng gia tăng, thể hiện lợi ích nhóm. EH không đổi. |
+| **OP-04: Chuyển đổi Xanh** | Nhận +15 Điểm Xanh (Green Points) và thưởng quỹ +$200. | SS tăng 3% (giảm phát thải). Nòng cốt để Game kéo dài. |
 
 ---
 
 ### 🏭 CONSUMER — Người Tiêu Dùng (G4, G5, G6)
 - **Tài sản ban đầu:** $1,000 | **GDP ban đầu:** 500
-- Đại diện cho các khu công nghiệp, doanh nghiệp sử dụng điện
-- Mục tiêu: tối đa hóa **GDP Score**
+- Đại diện cho các khu công nghiệp, doanh nghiệp sử dụng điện.
+- **Mục tiêu:** Tối đa hóa điểm **GDP Score**.
 
-| Tùy Chọn | Tên | Ảnh Hưởng Cá Nhân | Ảnh Hưởng Hệ Thống |
-|---|---|---|---|
-| OP-01 | Mở rộng xưởng | GDP +50 | Cầu điện +20% |
-| OP-02 | Tiết kiệm điện | Tiền -400 | Cầu điện -10% |
-| OP-03 | Bãi công đòi giá | GDP dừng tăng | SS -15 |
-| OP-04 | Hỗ trợ hạ tầng | Tiền -600 | L_grid +10% |
+| Tùy Chọn | Tác động Cá Nhân (Riêng) | Tác động Hệ Thống (Chung) |
+|---|---|---|
+| **OP-01: Mở rộng xưởng** | GDP tăng nhanh +120 điểm, nhưng tiêu vốn đầu tư -$150. | Tăng nhu cầu điện +20%. Dễ làm sập EH nếu thiếu điện cung cấp. |
+| **OP-02: Tiết kiệm điện** | Tiết kiệm chi phí (+$250), hiệu quả tăng (+20 GDP). | Giảm 15% áp lực lên lưới điện, SS tăng +5%. |
+| **OP-03: Bãi công đòi giá** | Đòi được quyền lợi (+60 GDP), nhưng hao hụt do đình trệ (-$100). | Gây mâu thuẫn giai cấp, SS lao dốc -8%. |
+| **OP-04: Hỗ trợ hạ tầng** | Chủ động đóng tiền túi (-$400), đổi lấy +40 GDP. | Lưới điện quốc gia Grid Limit đột phá +80 MW. Cả game hưởng lợi. |
 
 ---
 
 ### 🏛️ EVN — Đơn Vị Vận Hành Lưới (G7)
 - **Tài sản ban đầu:** $5,000
-- Đại diện cho EVN (Tập đoàn Điện lực Việt Nam) — kiểm soát lưới truyền tải
-- Mục tiêu: **duy trì hệ thống ổn định** và tối đa hóa lợi nhuận
+- Đại diện cho Nhà nước — kiểm soát lưới truyền tải (cổ chai của hệ thống).
+- **Mục tiêu:** Cân bằng Game, không để sập hệ thống (giữ EH/SS), và tối đa hóa lợi nhuận.
 
-| Tùy Chọn | Tên | Ảnh Hưởng Cá Nhân | Ảnh Hưởng Hệ Thống |
-|---|---|---|---|
-| OP-01 | Nâng cấp lưới | Tiền -1500 | L_grid +30% |
-| OP-02 | Áp trần giá bán | Tiền -20% | SS +20, EH ổn định |
-| OP-03 | Tăng phí vận chuyển | Tiền +20% | SS -10, GDP nhóm B giảm |
-| OP-04 | Cắt điện luân phiên | Không đổi | SS -20, Bảo vệ Grid |
+| Tùy Chọn | Tác động Cá Nhân (Riêng) | Tác động Hệ Thống (Chung) |
+|---|---|---|
+| **OP-01: Nâng cấp lưới** | Tiêu tốn -$1,200 từ ngân sách nhà nước. | Nâng dung lượng lưới (Grid Limit) thêm +25%. Gỡ cổ chai cho toàn game. |
+| **OP-02: Áp trần giá bán** | Chịu lỗ -$800 để trợ giá. | SS tăng phi mã +25%. Mọi CONSUMER nhận được +$100 và +30 GDP. |
+| **OP-03: Tăng phí truyền tải** | Thu lời đậm bù ngân sách (+$600). | Bóp nghẹt kinh tế: Mọi CONSUMER bị trừ -$200 và -20 GDP. SS giảm -12%. |
+| **OP-04: Cắt điện luân phiên** | Không tốn tiền. | Bảo vệ lưới điện dài hạn (Grid Limit +150 MW), nhưng EH cắm đầu -5%, SS giảm -15%. |
 
 ---
 
-## 🔄 Luồng Chơi Từng Vòng
+## 🔄 Tiến Trình 4 Bước: Cách Tiền & Điểm Được Tính Toán
 
-```
-1. [Mỗi nhóm] Chọn 1 trong 4 tùy chọn chiến lược  
-        ↓
-2. [Tất cả nhóm sẵn sàng] Admin nhấn "Execute Round"  
-        ↓
-3. [Hệ thống] Tính toán cung/cầu điện, cập nhật EH & SS  
-        ↓
-4. [Mỗi 3 vòng] Sự kiện ngẫu nhiên xảy ra  
-        ↓
-5. Vòng tiếp theo bắt đầu
-```
+Game Engine xử lý kết quả ẩn dưới nền thông qua 4 bước cực kỳ quan trọng sau khi tất cả bấm Ready:
+
+1. **Thu thập Quyết định & Trừ Chi phí:** Đầu tiên, các khoản tác động "Riêng" (như Mở rộng xưởng trừ $150, hay Lobby cướp 60% doanh thu) sẽ được áp dụng trực tiếp.
+2. **Cuộc chiến Cung - Cầu & Grid Limit:** Hệ thống đối chiếu Tổng Cầu (của G4-G6) và Tổng Cung (của G1-G3). Lượng điện được lưu thông thực tế (`Real Energy`) không bao giờ được phép vượt quá giới hạn **Grid Limit** của EVN. Điện dư thừa sẽ bị vứt bỏ.
+3. **Phân bổ Lợi Nhuận (Dựa trên Real Energy):** 
+   - **GENCO:** Bán `Real Energy` lấy tiền (1.2$/MW). Lợi nhuận = Doanh thu - Chi phí vận hành cơ bản ($250). *Lưu ý: Nếu một GENCO chọn "Bảo trì máy", chi phí này giảm một nửa.*
+   - **CONSUMER:** Chỉ khi `Real Energy` đáp ứng đủ 100% Nhu cầu (`Total Demand`), GDP mới tăng tối đa (+80/vòng). Thiếu điện, GDP sẽ đình trệ.
+   - **EVN:** Thu phí BOT (~$0.15/MW) cho mọi dòng điện chạy qua lưới.
+4. **Tác động Ngoại cảnh (Thiên tai & Nhà nước):** Cuối cùng, game áp dụng sức mạnh từ tùy chọn của EVN (như Áp trần giá tặng tiền cho CONSUMER) và các Sự kiện Thiên tai dự báo trước (như Bão lũ trừ 30% Grid Limit). Tác động này có thể lật ngược hoàn toàn kết quả của 3 bước trước.
 
 ---
 

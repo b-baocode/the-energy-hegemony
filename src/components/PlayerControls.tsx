@@ -1,15 +1,17 @@
 
 import React, { useState } from 'react';
 import { Player, GameOption, GENCO_OPTIONS, CONSUMER_OPTIONS, EVN_OPTIONS, GameState, getOptionName, getDisplayName, ROLE_PREFIX } from '../types/game';
-import { Wallet, TrendingUp, Leaf, Zap, CheckCircle2, Eye, EyeOff, Activity, Users, BatteryCharging, ShieldAlert } from 'lucide-react';
+import { Wallet, TrendingUp, Leaf, Zap, CheckCircle2, Eye, EyeOff, Activity, Users, BatteryCharging, ShieldAlert, Timer } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CityBackground, FloatingIcon } from './VisualEffects';
+import { SCENARIOS } from '../lib/gameEngine';
 
 interface PlayerControlsProps {
   player: Player;
   gameState: GameState;
   onSelectOption: (optionId: number) => void;
   players: Player[];
+  roundTimer: number;
 }
 
 const ROLE_COLOR: Record<string, string> = {
@@ -18,7 +20,7 @@ const ROLE_COLOR: Record<string, string> = {
   EVN: 'bg-red-100 text-red-800 border-red-400',
 };
 
-export const PlayerControls: React.FC<PlayerControlsProps> = ({ player, gameState, onSelectOption, players }) => {
+export const PlayerControls: React.FC<PlayerControlsProps> = ({ player, gameState, onSelectOption, players, roundTimer }) => {
   const [effects, setEffects] = useState<{ id: number; icon: string; x: number; y: number }[]>([]);
   const options: GameOption[] = player.role === 'GENCO' ? GENCO_OPTIONS : player.role === 'CONSUMER' ? CONSUMER_OPTIONS : EVN_OPTIONS;
 
@@ -128,16 +130,41 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({ player, gameStat
 
       <header className="flex justify-between items-center mb-6 bg-white/90 p-4 rounded-2xl game-border-blue">
         <div>
-          <h1 className="text-2xl font-mono font-bold text-blue-600">{player.group_name}</h1>
+          <h1 className="text-2xl font-mono font-bold text-blue-600">{player.custom_name?.trim() || player.group_name}</h1>
           <div className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded inline-block border mt-1 ${ROLE_COLOR[player.role]}`}>
             {player.role} Sector
           </div>
         </div>
-        <div className="bg-yellow-400 px-4 py-2 rounded-xl game-border-yellow text-center">
-          <div className="text-[10px] font-mono font-bold uppercase text-yellow-900">Round</div>
-          <div className="text-xl font-mono font-bold text-yellow-900">{gameState.round}<span className="text-sm opacity-50">/20</span></div>
+        <div className="flex items-center gap-2">
+          {/* Timer */}
+          <div className={`flex flex-col items-center px-4 py-2 rounded-xl border-2 text-center transition-all ${
+            roundTimer <= 10 ? 'bg-red-500 border-red-700 text-white animate-pulse' : 'bg-white border-blue-200 text-blue-700'
+          }`}>
+            <Timer className="w-3 h-3 mb-0.5 opacity-70" />
+            <div className="text-xl font-mono font-bold leading-none">{roundTimer}s</div>
+          </div>
+          <div className="bg-yellow-400 px-4 py-2 rounded-xl game-border-yellow text-center">
+            <div className="text-[10px] font-mono font-bold uppercase text-yellow-900">Round</div>
+            <div className="text-xl font-mono font-bold text-yellow-900">{gameState.round}<span className="text-sm opacity-50">/20</span></div>
+          </div>
         </div>
       </header>
+
+      {/* Scenario Banner */}
+      {(() => {
+        const s = SCENARIOS[(gameState.round - 1) % SCENARIOS.length];
+        return (
+          <div className={`mb-4 px-4 py-2 rounded-xl text-xs font-mono font-bold border-2 ${
+            s.multiplier >= 1.3 ? 'bg-green-50 border-green-300 text-green-800' :
+            s.multiplier >= 1.0 ? 'bg-blue-50 border-blue-200 text-blue-800' :
+            s.multiplier >= 0.6 ? 'bg-orange-50 border-orange-200 text-orange-800' :
+            'bg-red-50 border-red-200 text-red-800'
+          }`}>
+            🎬 Vòng {gameState.round}: <span className="font-bold">{s.name}</span>
+            <span className="ml-2 opacity-60">(×{s.multiplier.toFixed(1)}) — {s.description}</span>
+          </div>
+        );
+      })()}
 
         {/* Stats Grid - Player Specific */}
       <div className="grid grid-cols-3 gap-3 mb-6">

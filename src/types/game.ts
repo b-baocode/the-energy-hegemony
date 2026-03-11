@@ -36,6 +36,7 @@ export interface GameState {
   current_event: string | null;
   next_event_prediction: string | null;
   is_game_over: boolean;
+  waiting_for_admin_confirm: boolean; // Admin phải confirm trước khi bắt đầu vòng tiếp theo
   history: {
     round: number;
     eh: number;

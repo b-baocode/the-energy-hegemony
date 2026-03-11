@@ -2,17 +2,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { GameState, Player, ROLE_PREFIX, getDisplayName } from './types/game';
-import { INITIAL_GAME_STATE, INITIAL_PLAYERS, processRound, triggerEvent, EVENTS } from './lib/gameEngine';
+import { INITIAL_GAME_STATE, INITIAL_PLAYERS, processRound, triggerEvent, EVENTS, SCENARIOS } from './lib/gameEngine';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PlayerControls } from './components/PlayerControls';
-import { ShieldAlert, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { ShieldAlert, ChevronDown, ChevronUp, Pencil, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CityBackground } from './components/VisualEffects';
+
+const ADMIN_PASSWORD = '100204';
 
 // ── In-App Guide Component ────────────────────────────────────────────────────
 const GameGuide: React.FC = () => {
   const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState<'play' | 'theory'>('play');
+  const [tab, setTab] = useState<'play' | 'theory' | 'scenarios'>('play');
 
   return (
     <div className="w-full max-w-4xl z-10 mt-8">
@@ -40,10 +42,11 @@ const GameGuide: React.FC = () => {
                 {[
                   { key: 'play', label: '🎮 Cách Chơi' },
                   { key: 'theory', label: '📚 Lý Thuyết Lênin' },
+                  { key: 'scenarios', label: '🎬 Kịch Bản' },
                 ].map(t => (
                   <button
                     key={t.key}
-                    onClick={() => setTab(t.key as 'play' | 'theory')}
+                    onClick={() => setTab(t.key as 'play' | 'theory' | 'scenarios')}
                     className={`px-4 py-2 rounded-xl font-mono font-bold text-sm transition-all border-2 ${
                       tab === t.key
                         ? 'bg-blue-600 text-white border-blue-700'
@@ -61,41 +64,83 @@ const GameGuide: React.FC = () => {
                   <div>
                     <h3 className="font-mono font-bold uppercase text-xs tracking-widest opacity-50 mb-2">Tổng Quan</h3>
                     <p className="text-sm leading-relaxed">
-                      <b>The Energy Hegemony</b> mô phỏng thị trường điện lực. 7 nhóm (G1–G7) đưa ra quyết định mỗi vòng.
+                      <b>The Energy Hegemony</b> mô phỏng thị trường điện lực. Các nhóm (G1–…) đưa ra quyết định mỗi vòng.
                       Trò chơi kết thúc sau <b>20 vòng</b> hoặc khi <b>EH &lt; 20%</b> hoặc <b>SS &lt; 20%</b>.
                     </p>
+                    <div className="mt-3 p-3 bg-red-50 border-2 border-red-200 rounded-xl text-xs">
+                      <span className="font-bold text-red-700">⚠️ Án Phạt Sụp Đổ Sớm:</span>
+                      <span className="text-red-600 ml-1">Nếu hệ thống sụp đổ trước vòng 20, GENCO &amp; CONSUMER bị phạt còn <b>30% điểm</b>. EVN được <b>miễn phạt</b> (nhà nước chịu trách nhiệm hệ thống).</span>
+                    </div>
                   </div>
 
                   {/* Roles */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-yellow-50 rounded-xl p-4 border-2 border-yellow-300">
-                      <div className="text-xs font-mono font-bold uppercase text-yellow-700 mb-2">⚡ GENCO (G1, G2, G3)</div>
-                      <p className="text-xs leading-relaxed">Nhà sản xuất điện. Mục tiêu: tối đa <b>Balance</b>. Cạnh tranh giành doanh thu từ lưới điện.</p>
-                      <div className="mt-2 space-y-1 text-xs">
-                        <div className="bg-yellow-100 rounded px-2 py-1">OP-01: Tăng công suất → +700$ flat</div>
-                        <div className="bg-yellow-100 rounded px-2 py-1">OP-02: Bảo trì → chi phí -50%</div>
-                        <div className="bg-yellow-100 rounded px-2 py-1"><b>OP-03: Lobby EVN → chiếm 60% doanh thu!</b></div>
-                        <div className="bg-yellow-100 rounded px-2 py-1">OP-04: Chuyển đổi Xanh → +15 Green Points</div>
+                      <div className="text-xs font-mono font-bold uppercase text-yellow-700 mb-2">⚡ GENCO</div>
+                      <p className="text-xs leading-relaxed mb-3">Nhà sản xuất điện. Mục tiêu: tối đa <b>Balance</b>. Cạnh tranh giành doanh thu từ lưới điện.</p>
+                      <div className="space-y-2 text-xs">
+                        <div className="bg-yellow-100/50 rounded p-2">
+                          <div className="font-bold text-yellow-800">OP-01: Tăng công suất</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +700$ (tiền mặt).<br/><b>Chung:</b> Hệ thống +40% điện, Social Stability -3% (ô nhiễm).</div>
+                        </div>
+                        <div className="bg-yellow-100/50 rounded p-2">
+                          <div className="font-bold text-yellow-800">OP-02: Bảo trì máy</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Giảm 50% chi phí vòng này.<br/><b>Chung:</b> Giữ vững Economy Health.</div>
+                        </div>
+                        <div className="bg-yellow-200/50 rounded p-2">
+                          <div className="font-bold text-yellow-800">OP-03: Lobby EVN</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Cướp lấy 60% tổng doanh thu điện toàn quốc.<br/><b>Chung:</b> Tạo bất bình đẳng, nhóm khác chỉ còn 20%.</div>
+                        </div>
+                        <div className="bg-yellow-100/50 rounded p-2">
+                          <div className="font-bold text-yellow-800">OP-04: Chuyển đổi Xanh</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +15 Điểm Xanh, +200$.<br/><b>Chung:</b> Social Stability +3%. Cơ sở để game kéo dài.</div>
+                        </div>
                       </div>
                     </div>
+                    
                     <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-300">
-                      <div className="text-xs font-mono font-bold uppercase text-blue-700 mb-2">🏭 CONSUMER (G4, G5, G6)</div>
-                      <p className="text-xs leading-relaxed">Doanh nghiệp / Công nghiệp. Mục tiêu: tối đa <b>GDP Score × 2 + Balance</b>.</p>
-                      <div className="mt-2 space-y-1 text-xs">
-                        <div className="bg-blue-100 rounded px-2 py-1">OP-01: Mở rộng xưởng → GDP +120, -150$</div>
-                        <div className="bg-blue-100 rounded px-2 py-1">OP-02: Tiết kiệm điện → +250$, SS +5</div>
-                        <div className="bg-blue-100 rounded px-2 py-1">OP-03: Bãi công → GDP +60, SS -8</div>
-                        <div className="bg-blue-100 rounded px-2 py-1">OP-04: Hỗ trợ hạ tầng → GDP +40, Grid +80</div>
+                      <div className="text-xs font-mono font-bold uppercase text-blue-700 mb-2">🏭 CONSUMER</div>
+                      <p className="text-xs leading-relaxed mb-3">Doanh nghiệp / Công nghiệp. Mục tiêu: tối đa <b>GDP Score × 2 + Balance</b>.</p>
+                      <div className="space-y-2 text-xs">
+                        <div className="bg-blue-100/50 rounded p-2">
+                          <div className="font-bold text-blue-800">OP-01: Mở rộng xưởng</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +120 GDP, -150$.<br/><b>Chung:</b> Cần thêm 20% điện. Dễ sập Economy Health nếu thiếu cung.</div>
+                        </div>
+                        <div className="bg-blue-100/50 rounded p-2">
+                          <div className="font-bold text-blue-800">OP-02: Tiết kiệm điện</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +250$, +20 GDP.<br/><b>Chung:</b> Giảm 15% áp lực điện, Social Stability +5%.</div>
+                        </div>
+                        <div className="bg-blue-200/50 rounded p-2">
+                          <div className="font-bold text-blue-800">OP-03: Bãi công đòi giá</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Đòi được +60 GDP, nhưng mất -100$.<br/><b>Chung:</b> Gây mâu thuẫn giai cấp, Social Stability -8%.</div>
+                        </div>
+                        <div className="bg-blue-100/50 rounded p-2">
+                          <div className="font-bold text-blue-800">OP-04: Hỗ trợ hạ tầng</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Bỏ tiền túi -400$, nhận +40 GDP.<br/><b>Chung:</b> Lưới điện quốc gia Grid Limit +80 MW. Cả game hưởng lợi.</div>
+                        </div>
                       </div>
                     </div>
+                    
                     <div className="bg-red-50 rounded-xl p-4 border-2 border-red-300">
-                      <div className="text-xs font-mono font-bold uppercase text-red-700 mb-2">🏛️ EVN (G7) — Nhà nước</div>
-                      <p className="text-xs leading-relaxed">Độc quyền lưới. Kiểm soát Grid Limit. Quyết định ảnh hưởng trực tiếp CONSUMER.</p>
-                      <div className="mt-2 space-y-1 text-xs">
-                        <div className="bg-red-100 rounded px-2 py-1">OP-01: Nâng cấp lưới → Grid +25%</div>
-                        <div className="bg-red-100 rounded px-2 py-1"><b>OP-02: Áp trần giá → SS +25, CONSUMER +100$</b></div>
-                        <div className="bg-red-100 rounded px-2 py-1"><b>OP-03: Tăng phí → +600$, CONSUMER -200$</b></div>
-                        <div className="bg-red-100 rounded px-2 py-1">OP-04: Cắt điện → Grid +150, SS -15</div>
+                      <div className="text-xs font-mono font-bold uppercase text-red-700 mb-2">🏛️ EVN — Nhà nước</div>
+                      <p className="text-xs leading-relaxed mb-3">Độc quyền lưới. Kiểm soát Grid Limit. Quyết định ảnh hưởng trực tiếp CONSUMER. <b className="text-green-700">Miễn án phạt sụp đổ.</b></p>
+                      <div className="space-y-2 text-xs">
+                        <div className="bg-red-100/50 rounded p-2">
+                          <div className="font-bold text-red-800">OP-01: Nâng cấp lưới</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Tiêu tốn -1200$ ngân sách.<br/><b>Chung:</b> Mở rộng Grid Capacity +25%, tất cả cùng hưởng lợi.</div>
+                        </div>
+                        <div className="bg-red-200/50 rounded p-2">
+                          <div className="font-bold text-red-800">OP-02: Áp trần giá bán</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Chịu lỗ -800$ để trợ giá.<br/><b>Chung:</b> Cứu nguy Social Stability (+25%). CONSUMER hưởng lợi (+100$, +30 GDP).</div>
+                        </div>
+                        <div className="bg-red-200/50 rounded p-2">
+                          <div className="font-bold text-red-800">OP-03: Tăng phí vận chuyển</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Thu lãi đậm +600$ bù ngân sách.<br/><b>Chung:</b> Bóp nghẹt doanh nghiệp (CONSUMER -200$, -20 GDP), Social Stability -12%.</div>
+                        </div>
+                        <div className="bg-red-100/50 rounded p-2">
+                          <div className="font-bold text-red-800">OP-04: Cắt điện luân phiên</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Không tốn tiền.<br/><b>Chung:</b> Bảo vệ lưới điện dài hạn (+150 MW), nhưng Economy Health -5%, Social Stability -15%.</div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -126,6 +171,7 @@ const GameGuide: React.FC = () => {
                       <div>⚡ <b>GENCO:</b> Balance + Green Points × 20</div>
                       <div>🏭 <b>CONSUMER:</b> GDP Score × 2 + Balance</div>
                       <div>🏛️ <b>EVN:</b> Balance + (EH + SS) × 10 — được thưởng khi hệ thống sống sót tốt</div>
+                      <div className="mt-2 text-xs text-red-600 border-t border-red-100 pt-2">⚠️ <b>Án phạt:</b> Sụp đổ trước vòng 20 → GENCO &amp; CONSUMER còn 30% điểm. EVN miễn phạt.</div>
                     </div>
                   </div>
                 </div>
@@ -177,6 +223,45 @@ const GameGuide: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {tab === 'scenarios' && (
+                <div className="text-blue-900">
+                  <p className="text-xs text-gray-500 mb-4 font-mono">
+                    Hệ số nhân ảnh hưởng đến cả phát điện cơ bản (400 MW/GENCO) và cầu điện cơ bản (300 MW/CONSUMER).
+                  </p>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-blue-600 text-white">
+                          <th className="px-3 py-2 font-mono text-left rounded-tl-xl">Vòng</th>
+                          <th className="px-3 py-2 font-mono text-left">Kịch Bản</th>
+                          <th className="px-3 py-2 font-mono text-center">Hệ Số</th>
+                          <th className="px-3 py-2 font-mono text-left rounded-tr-xl">Mô Tả</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {SCENARIOS.map((s, i) => (
+                          <tr key={i} className={i % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                            <td className="px-3 py-2 font-mono font-bold text-blue-500">{i + 1}</td>
+                            <td className="px-3 py-2 font-bold">{s.name}</td>
+                            <td className="px-3 py-2 text-center">
+                              <span className={`font-mono font-bold px-2 py-0.5 rounded-full text-[10px] ${
+                                s.multiplier >= 1.3 ? 'bg-green-100 text-green-700' :
+                                s.multiplier >= 1.0 ? 'bg-blue-100 text-blue-700' :
+                                s.multiplier >= 0.6 ? 'bg-orange-100 text-orange-700' :
+                                'bg-red-100 text-red-700'
+                              }`}>
+                                ×{s.multiplier.toFixed(1)}
+                              </span>
+                            </td>
+                            <td className="px-3 py-2 text-gray-500">{s.description}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
@@ -184,6 +269,93 @@ const GameGuide: React.FC = () => {
     </div>
   );
 };
+
+// ── Admin Password Modal ──────────────────────────────────────────────────────
+const AdminPasswordModal: React.FC<{ onSuccess: () => void; onCancel: () => void }> = ({ onSuccess, onCancel }) => {
+  const [input, setInput] = useState('');
+  const [error, setError] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }, []);
+
+  const handleSubmit = () => {
+    if (input === ADMIN_PASSWORD) {
+      onSuccess();
+    } else {
+      setError(true);
+      setInput('');
+      setTimeout(() => setError(false), 1500);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <motion.div
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: error ? [1, 1.02, 0.98, 1] : 1, opacity: 1 }}
+        className="w-full max-w-sm bg-white rounded-3xl p-8 game-border-yellow shadow-2xl"
+      >
+        <div className="flex justify-center mb-4">
+          <div className={`p-4 rounded-2xl ${error ? 'bg-red-100' : 'bg-yellow-100'}`}>
+            <Lock className={`w-8 h-8 ${error ? 'text-red-500' : 'text-yellow-600'}`} />
+          </div>
+        </div>
+        <h2 className="text-2xl font-mono font-bold text-center text-blue-700 mb-1">Admin Access</h2>
+        <p className="text-xs font-mono text-center text-gray-400 uppercase tracking-widest mb-6">Nhập mật khẩu quản trị</p>
+
+        {error && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="mb-4 p-3 bg-red-50 border-2 border-red-200 rounded-xl text-xs font-mono text-red-600 text-center font-bold"
+          >
+            ❌ Sai mật khẩu — Thử lại
+          </motion.div>
+        )}
+
+        <input
+          ref={inputRef}
+          type="password"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+          placeholder="••••••"
+          className="w-full bg-gray-50 border-2 border-blue-200 rounded-xl px-4 py-3 font-mono text-xl text-center tracking-[0.5em] focus:outline-none focus:border-blue-500 transition-colors mb-4"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            className="flex-1 py-3 border-2 border-gray-200 rounded-xl font-mono font-bold text-sm text-gray-400 hover:bg-gray-50 transition-all"
+          >
+            ← Huỷ
+          </button>
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={handleSubmit}
+            className="flex-grow py-3 bg-yellow-400 text-yellow-900 rounded-xl font-mono font-bold text-sm hover:bg-yellow-300 transition-all border-2 border-yellow-600 shadow-[0_4px_0_#854d0e]"
+          >
+            Xác nhận →
+          </motion.button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// ── DB helper: only send columns that exist in the Supabase game_state table ──
+// Prevents PGRST204 errors when GameState has fields not yet in DB schema.
+const toDbState = (s: GameState) => ({
+  round:                   s.round,
+  eh:                      s.eh,
+  ss:                      s.ss,
+  grid_limit:              s.grid_limit,
+  current_event:           s.current_event,
+  is_game_over:            s.is_game_over,
+  waiting_for_admin_confirm: s.waiting_for_admin_confirm,
+  history:                 s.history,
+});
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
@@ -196,6 +368,34 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
+
+  // Admin auth
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminAuthenticated, setAdminAuthenticated] = useState(false);
+
+  // Round timer (30s countdown, resets each round)
+  const [roundTimer, setRoundTimer] = useState(30);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Start/restart timer when round changes
+  useEffect(() => {
+    if (view === 'PLAYER' && !gameState.is_game_over && !gameState.waiting_for_admin_confirm) {
+      setRoundTimer(30);
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        setRoundTimer(prev => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [gameState.round, view, gameState.is_game_over, gameState.waiting_for_admin_confirm]);
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
@@ -218,16 +418,21 @@ export default function App() {
         const { data: playersData, error: playersError } = await supabase.from('players').select('*');
         if (playersError) throw playersError;
 
-        // Nếu đúng 7 nhóm → dùng data hiện tại
-        if (playersData && playersData.length === 7) {
-          setPlayers(playersData);
+        // Yêu cầu ít nhất 1 mỗi loại role; nếu DB trống → insert mặc định
+        const hasRoles = (data: Player[]) =>
+          data.some(p => p.role === 'GENCO') &&
+          data.some(p => p.role === 'CONSUMER') &&
+          data.some(p => p.role === 'EVN');
+
+        if (playersData && playersData.length > 0 && hasRoles(playersData as Player[])) {
+          setPlayers(playersData as Player[]);
         } else {
-          // Xóa hết rác cũ (duplicate / thiếu) rồi insert lại đúng 7 nhóm
+          // Xóa hết rác cũ rồi insert lại nhóm mặc định
           await supabase.from('players').delete().neq('id', '00000000-0000-0000-0000-000000000000');
           const { data: newPlayers, error: insertError } = await supabase
             .from('players').insert(INITIAL_PLAYERS).select();
           if (insertError) throw insertError;
-          setPlayers(newPlayers);
+          setPlayers(newPlayers as Player[]);
         }
         setLoading(false);
       } catch (err: any) {
@@ -248,12 +453,9 @@ export default function App() {
     const playersSub = supabase
       .channel('players_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'players' }, (payload: any) => {
-        // Xử lý đủ 3 loại sự kiện: INSERT, UPDATE, DELETE
         if (payload.eventType === 'DELETE') {
-          // Xóa khỏi state khi bị delete
           setPlayers(prev => prev.filter(p => p.id !== payload.old.id));
         } else {
-          // INSERT hoặc UPDATE
           setPlayers(prev => {
             const index = prev.findIndex(p => p.id === payload.new.id);
             if (index === -1) return [...prev, payload.new as Player];
@@ -269,6 +471,14 @@ export default function App() {
       playersSub.unsubscribe();
     };
   }, []);
+
+  const handleAdminClick = () => {
+    if (adminAuthenticated) {
+      setView('ADMIN');
+    } else {
+      setShowAdminModal(true);
+    }
+  };
 
   // Click nhóm → vào màn nhập tên
   const handleSelectRole = (player: Player) => {
@@ -301,14 +511,10 @@ export default function App() {
   };
 
   const handleProcessRound = async () => {
-    // nextState was just computed for the NEXT round (e.g., we selected options in Round 2, now nextState is Round 3)
     const { nextState, updatedPlayers } = processRound(gameState, players);
     let finalState = nextState;
-    
-    // Nếu vòng HIỆN TẠI (vừa chơi xong, chuẩn bị sang vòng mới mà vòng mới % 3 === 0) 
-    // thì áp dụng Cảnh Báo từ vòng trước (gameState.next_event_prediction)
+
     if (nextState.round % 3 === 0 && gameState.next_event_prediction) {
-      // Find the event impact that matches the prediction
       const predictedEvent = EVENTS.find(e => e.name === gameState.next_event_prediction);
       if (predictedEvent) {
         finalState = { 
@@ -320,36 +526,104 @@ export default function App() {
     }
 
     const { error: stateError } = await supabase
-      .from('game_state').update(finalState).eq('id', 'global');
+      .from('game_state').update(toDbState(finalState)).eq('id', 'global');
     if (stateError) {
       console.error('State update error:', stateError);
-      alert('Failed to update game state. Check Supabase RLS policies.');
+      alert('Lỗi cập nhật game: ' + stateError.message);
     }
 
     const { error: playersError } = await supabase.from('players').upsert(updatedPlayers);
     if (playersError) {
       console.error('Players update error:', playersError);
-      alert('Failed to update players. Check Supabase RLS policies.');
     }
   };
 
+  // Admin confirms moving to the next round
+  const handleConfirmNextRound = async () => {
+    const { error } = await supabase
+      .from('game_state')
+      .update({ waiting_for_admin_confirm: false })
+      .eq('id', 'global');
+    if (error) console.error(error);
+  };
+
+  // Admin adds a new player group
+  const handleAddPlayer = async (role: 'GENCO' | 'CONSUMER') => {
+    const existingByRole = players.filter(p => p.role === role).length;
+    const allNumbers = players.map(p => parseInt(p.group_name.replace('G', ''))).filter(n => !isNaN(n));
+    const nextNum = allNumbers.length > 0 ? Math.max(...allNumbers) + 1 : players.length + 1;
+    const newPlayerData = {
+      group_name: `G${nextNum}`,
+      role,
+      balance: role === 'GENCO' ? 2000 : 1000,
+      gdp_score: role === 'CONSUMER' ? 500 : 0,
+      green_points: 0,
+      last_option: null,
+      is_ready: false,
+    };
+    const { error } = await supabase.from('players').insert(newPlayerData);
+    if (error) console.error(error);
+  };
+
   const handleReset = async () => {
-    // 1. Reset game state
-    await supabase.from('game_state').update(INITIAL_GAME_STATE).eq('id', 'global');
-    
-    // 2. Xóa hết players cũ
-    await supabase.from('players').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    
-    // 3. Xóa state cục bộ trước khi insert mới (tránh subscriber cộng dồn)
+    console.log('Reset triggered...');
+    const confirmed = window.confirm('⚠️ Xác nhận Reset?\n\nToàn bộ dữ liệu game sẽ về Vòng 1. Dữ liệu trên hệ thống sẽ bị xóa sạch.\n\nBạn có chắc không?');
+    if (!confirmed) {
+      console.log('Reset cancelled by user');
+      return;
+    }
+
+    console.log('Executing reset flow...');
+
+    // 1. Reset local state ngay lập tức (UI feedback tức thì)
+    setGameState(INITIAL_GAME_STATE);
     setPlayers([]);
-    
-    // 4. Insert lại đúng 7 nhóm sạch
-    const { data: newPlayers } = await supabase.from('players').insert(INITIAL_PLAYERS).select();
-    if (newPlayers) setPlayers(newPlayers);
-    
-    // 5. Về màn hình chọn nhóm
     setCurrentPlayer(null);
+    setAdminAuthenticated(false);
     setView('SELECT_ROLE');
+
+    try {
+      // 2. Sync DB — game_state
+      console.log('Syncing game_state reset...');
+      const { error: resetError } = await supabase
+        .from('game_state')
+        .update(toDbState(INITIAL_GAME_STATE))
+        .eq('id', 'global');
+      if (resetError) {
+        console.error('Reset state DB error:', resetError);
+        alert('Lỗi Reset GameState: ' + resetError.message);
+      }
+
+      // 3. Xóa và khởi tạo lại players
+      console.log('Cleaning up players table...');
+      const { error: delErr } = await supabase
+        .from('players')
+        .delete()
+        .neq('id', '00000000-0000-0000-0000-000000000000');
+      if (delErr) {
+        console.error('Delete players DB error:', delErr);
+        alert('Lỗi Xóa Players: ' + delErr.message);
+      }
+
+      console.log('Re-inserting initial players...');
+      const { data: newPlayers, error: insertErr } = await supabase
+        .from('players')
+        .insert(INITIAL_PLAYERS)
+        .select();
+      
+      if (insertErr) {
+        console.error('Insert players DB error:', insertErr);
+        alert('Lỗi Chèn Players: ' + insertErr.message);
+      }
+      
+      if (newPlayers) {
+        setPlayers(newPlayers as Player[]);
+        console.log('Reset complete, players re-initialized.');
+      }
+    } catch (err) {
+      console.error('Unexpected reset error:', err);
+      alert('Đã xảy ra lỗi không xác định khi Reset.');
+    }
   };
 
   // ── Loading ──────────────────────────────────────────────────────────────
@@ -385,6 +659,7 @@ export default function App() {
   grid_limit INTEGER,
   current_event TEXT,
   is_game_over BOOLEAN,
+  waiting_for_admin_confirm BOOLEAN DEFAULT false,
   history JSONB
 );
 
@@ -413,6 +688,12 @@ ALTER TABLE players DISABLE ROW LEVEL SECURITY;`}
     return (
       <div className="min-h-screen bg-[#86efac] text-[#1e3a8a] p-4 md:p-8 font-sans flex flex-col items-center justify-center relative overflow-hidden">
         <CityBackground />
+        {showAdminModal && (
+          <AdminPasswordModal
+            onSuccess={() => { setShowAdminModal(false); setAdminAuthenticated(true); setView('ADMIN'); }}
+            onCancel={() => setShowAdminModal(false)}
+          />
+        )}
         <div className="max-w-4xl w-full z-10">
           <header className="text-center mb-8 bg-white/90 p-8 rounded-3xl game-border-blue">
             <h1 className="text-5xl md:text-7xl font-mono font-bold uppercase tracking-tighter mb-4 text-blue-600 drop-shadow-lg">
@@ -425,12 +706,14 @@ ALTER TABLE players DISABLE ROW LEVEL SECURITY;`}
             <motion.div
               whileHover={{ scale: 1.05, rotate: -1 }}
               className="game-border-yellow p-8 bg-white rounded-3xl hover:bg-yellow-400 transition-all cursor-pointer group"
-              onClick={() => setView('ADMIN')}
+              onClick={handleAdminClick}
             >
               <div className="text-[10px] font-mono font-bold uppercase opacity-50 mb-4 group-hover:text-yellow-900">System Monitor</div>
               <h2 className="text-3xl font-mono font-bold mb-4 group-hover:text-yellow-900">Admin Dashboard</h2>
               <p className="text-sm font-medium opacity-70 mb-6 group-hover:text-yellow-900">Oversee the entire energy grid, monitor indices, and execute rounds.</p>
-              <div className="text-xs font-mono font-bold uppercase border-2 border-current inline-block px-6 py-3 rounded-xl group-hover:bg-yellow-900 group-hover:text-white">Enter Command Center</div>
+              <div className="text-xs font-mono font-bold uppercase border-2 border-current inline-flex items-center gap-2 px-6 py-3 rounded-xl group-hover:bg-yellow-900 group-hover:text-white">
+                <Lock className="w-3 h-3" /> Enter Command Center
+              </div>
             </motion.div>
 
             <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -534,6 +817,8 @@ ALTER TABLE players DISABLE ROW LEVEL SECURITY;`}
           players={players}
           onReset={handleReset}
           onProcessRound={handleProcessRound}
+          onConfirmNextRound={handleConfirmNextRound}
+          onAddPlayer={handleAddPlayer}
         />
       ) : currentPlayer ? (
         <PlayerControls
@@ -541,6 +826,7 @@ ALTER TABLE players DISABLE ROW LEVEL SECURITY;`}
           gameState={gameState}
           players={players}
           onSelectOption={handleSelectOption}
+          roundTimer={roundTimer}
         />
       ) : null}
     </>

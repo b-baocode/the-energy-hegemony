@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { GameState, Player, getOptionName, getDisplayName } from '../types/game';
-import { computeFinalScore } from '../lib/gameEngine';
-import { Zap, Heart, Users, Trophy, RefreshCw, Play, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { computeFinalScore, SCENARIOS } from '../lib/gameEngine';
+import { Zap, Heart, Users, Trophy, RefreshCw, Play, ShieldAlert, CheckCircle2, Plus, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CityBackground, FloatingIcon } from './VisualEffects';
 
@@ -12,6 +12,8 @@ interface AdminDashboardProps {
   players: Player[];
   onReset: () => void;
   onProcessRound: () => void;
+  onConfirmNextRound: () => void;
+  onAddPlayer: (role: 'GENCO' | 'CONSUMER') => void;
 }
 
 const ROLE_COLOR: Record<string, string> = {
@@ -20,10 +22,16 @@ const ROLE_COLOR: Record<string, string> = {
   EVN: 'bg-red-100 text-red-800 border-red-400',
 };
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, players, onReset, onProcessRound }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  gameState, players, onReset, onProcessRound, onConfirmNextRound, onAddPlayer
+}) => {
   const [effects, setEffects] = useState<{ id: number; icon: string; x: number; y: number }[]>([]);
   const readyCount = players.filter(p => p.is_ready).length;
   const allReady = readyCount === players.length && players.length > 0;
+
+  // Current scenario (0-indexed by round)
+  const scenarioIdx = ((gameState.round - 1) % SCENARIOS.length);
+  const currentScenario = SCENARIOS[scenarioIdx];
 
   useEffect(() => {
     if (gameState.round > 1) {
@@ -42,8 +50,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
 
   // ── Game Over / Winner Screen ──────────────────────────────────────────────
   if (gameState.is_game_over) {
+    const isEarlyCollapse = gameState.round <= 20 && (gameState.eh < 20 || gameState.ss < 20);
+
     const ranked = [...players]
-      .map(p => ({ ...p, finalScore: computeFinalScore(p, gameState) }))
+      .map(p => ({
+        ...p,
+        rawScore: p.role === 'GENCO' ? Math.round(p.balance + p.green_points * 20)
+          : p.role === 'CONSUMER' ? Math.round(p.gdp_score * 2 + p.balance)
+          : Math.round(p.balance + (gameState.eh + gameState.ss) * 10),
+        finalScore: computeFinalScore(p, gameState)
+      }))
       .sort((a, b) => b.finalScore - a.finalScore);
     const winner = ranked[0];
 
@@ -57,19 +73,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
           className="w-full max-w-2xl z-10"
         >
           {/* Header */}
-          <div className="bg-yellow-400 rounded-3xl p-8 text-center border-4 border-yellow-600 mb-6">
-            <Trophy className="w-20 h-20 mx-auto mb-4 text-yellow-800 fill-yellow-800" />
-            <h1 className="text-5xl font-mono font-bold uppercase text-yellow-900 mb-2">Game Over</h1>
-            <p className="text-sm font-mono font-bold uppercase text-yellow-800 opacity-70 tracking-widest">
-              {gameState.round > 20 ? 'Vòng 20 hoàn thành' : 'Hệ thống sụp đổ — EH/SS < 20%'}
+          <div className={`rounded-3xl p-8 text-center border-4 mb-6 ${isEarlyCollapse ? 'bg-red-500 border-red-800' : 'bg-yellow-400 border-yellow-600'}`}>
+            <Trophy className={`w-20 h-20 mx-auto mb-4 ${isEarlyCollapse ? 'text-white' : 'text-yellow-800 fill-yellow-800'}`} />
+            <h1 className={`text-5xl font-mono font-bold uppercase mb-2 ${isEarlyCollapse ? 'text-white' : 'text-yellow-900'}`}>
+              {isEarlyCollapse ? '💀 Hệ Thống Sụp Đổ!' : 'Game Over'}
+            </h1>
+            <p className={`text-sm font-mono font-bold uppercase tracking-widest ${isEarlyCollapse ? 'text-red-100' : 'text-yellow-800 opacity-70'}`}>
+              {isEarlyCollapse
+                ? `Sụp đổ tại Vòng ${gameState.round - 1} — ${gameState.eh < 20 ? 'EH' : 'SS'} < 20%`
+                : 'Vòng 20 hoàn thành — Kết thúc mô phỏng'}
             </p>
           </div>
+
+          {/* Penalty Banner */}
+          {isEarlyCollapse && (
+            <motion.div
+              initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
+              className="bg-red-900/80 border-2 border-red-400 rounded-2xl p-4 mb-4 text-center"
+            >
+              <div className="text-red-300 font-mono text-xs uppercase tracking-widest mb-1">⚠️ Án Phạt Sụp Đổ Sớm</div>
+              <div className="text-white text-sm font-bold">GENCO &amp; CONSUMER: điểm × 0.3 (bị trừ 70%)</div>
+              <div className="text-green-300 text-xs mt-1">🏛️ EVN: miễn phạt (nhà nước chịu trách nhiệm hệ thống)</div>
+            </motion.div>
+          )}
 
           {/* Winner */}
           <div className="bg-white rounded-3xl p-6 border-4 border-green-500 mb-4 text-center">
             <CheckCircle2 className="w-10 h-10 mx-auto mb-2 text-green-500" />
             <div className="text-xs font-mono font-bold uppercase text-green-600 mb-1 tracking-widest">🏆 Người chiến thắng</div>
-            <div className="text-4xl font-mono font-bold text-blue-700">{winner.group_name}</div>
+            <div className="text-4xl font-mono font-bold text-blue-700">{winner.custom_name?.trim() || winner.group_name}</div>
             <div className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold border-2 ${ROLE_COLOR[winner.role]}`}>{winner.role}</div>
             <div className="text-3xl font-mono font-bold text-green-600 mt-3">{winner.finalScore.toLocaleString()} pts</div>
           </div>
@@ -89,6 +121,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
                   </div>
                   <div className="text-right">
                     <div className="font-mono font-bold text-blue-700 text-lg">{p.finalScore.toLocaleString()} pts</div>
+                    {isEarlyCollapse && p.role !== 'EVN' && (
+                      <div className="text-[10px] font-mono text-red-400 line-through">{p.rawScore.toLocaleString()}</div>
+                    )}
                     <div className="text-[10px] font-mono opacity-50">
                       {p.role === 'GENCO' && `$${Math.round(p.balance)} + 🌿${p.green_points}×20`}
                       {p.role === 'CONSUMER' && `GDP${Math.round(p.gdp_score)}×2 + $${Math.round(p.balance)}`}
@@ -123,6 +158,101 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
     );
   }
 
+  // ── Admin Confirm Screen — between rounds ─────────────────────────────────
+  if (gameState.waiting_for_admin_confirm) {
+    // Previous round stats: compare last 2 history items
+    const hist = gameState.history;
+    const prev = hist.length >= 2 ? hist[hist.length - 2] : null;
+    const curr = hist[hist.length - 1];
+
+    return (
+      <div className="min-h-screen bg-[#1e3a8a] flex flex-col items-center justify-center p-8 font-sans relative overflow-hidden">
+        <CityBackground />
+        <motion.div
+          initial={{ scale: 0.85, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="w-full max-w-lg z-10 space-y-4"
+        >
+          <div className="bg-yellow-400 rounded-3xl p-8 text-center border-4 border-yellow-600">
+            <CheckCircle2 className="w-16 h-16 mx-auto mb-3 text-yellow-800" />
+            <h1 className="text-4xl font-mono font-bold uppercase text-yellow-900 mb-1">Vòng hoàn thành!</h1>
+            <p className="text-sm font-mono text-yellow-800 opacity-70 uppercase tracking-widest">
+              Vòng {gameState.round - 1} → Chuẩn bị Vòng {gameState.round}
+            </p>
+          </div>
+
+          {/* Round Summary */}
+          {prev && (
+            <div className="bg-white/90 rounded-2xl p-6 border-4 border-blue-300">
+              <h2 className="text-xs font-mono font-bold uppercase text-blue-500 mb-4 tracking-widest">Kết Quả Vòng {prev.round}</h2>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className={`rounded-xl p-3 border-2 ${curr.eh < prev.eh ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'}`}>
+                  <div className="text-[10px] font-mono font-bold uppercase opacity-50 mb-1">Economy Health</div>
+                  <div className="text-2xl font-mono font-bold text-red-600">{curr.eh}%</div>
+                  <div className={`text-xs font-mono font-bold mt-1 ${curr.eh < prev.eh ? 'text-red-500' : 'text-green-600'}`}>
+                    {curr.eh > prev.eh ? '+' : ''}{curr.eh - prev.eh}
+                  </div>
+                </div>
+                <div className={`rounded-xl p-3 border-2 ${curr.ss < prev.ss ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-300'}`}>
+                  <div className="text-[10px] font-mono font-bold uppercase opacity-50 mb-1">Social Stability</div>
+                  <div className="text-2xl font-mono font-bold text-blue-600">{curr.ss}%</div>
+                  <div className={`text-xs font-mono font-bold mt-1 ${curr.ss < prev.ss ? 'text-red-500' : 'text-green-600'}`}>
+                    {curr.ss > prev.ss ? '+' : ''}{curr.ss - prev.ss}
+                  </div>
+                </div>
+                <div className={`rounded-xl p-3 border-2 ${curr.grid_limit > prev.grid_limit ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'}`}>
+                  <div className="text-[10px] font-mono font-bold uppercase opacity-50 mb-1">Grid Limit</div>
+                  <div className="text-2xl font-mono font-bold text-yellow-600">{curr.grid_limit}</div>
+                  <div className={`text-xs font-mono font-bold mt-1 ${curr.grid_limit >= prev.grid_limit ? 'text-green-600' : 'text-red-500'}`}>
+                    {curr.grid_limit >= prev.grid_limit ? '+' : ''}{curr.grid_limit - prev.grid_limit} MW
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Next scenario preview */}
+          {gameState.round <= 20 && (
+            <div className="bg-white/90 rounded-2xl p-4 border-4 border-blue-200">
+              <div className="text-[10px] font-mono font-bold uppercase text-blue-400 mb-2 tracking-widest">Kịch Bản Vòng {gameState.round}</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-mono font-bold text-blue-800">{SCENARIOS[(gameState.round - 1) % SCENARIOS.length].name}</div>
+                  <div className="text-xs text-gray-500 mt-1">{SCENARIOS[(gameState.round - 1) % SCENARIOS.length].description}</div>
+                </div>
+                <span className={`font-mono font-bold text-lg px-3 py-1 rounded-xl border-2 ${
+                  SCENARIOS[(gameState.round - 1) % SCENARIOS.length].multiplier >= 1.3 ? 'bg-green-100 text-green-700 border-green-300' :
+                  SCENARIOS[(gameState.round - 1) % SCENARIOS.length].multiplier >= 1.0 ? 'bg-blue-100 text-blue-700 border-blue-300' :
+                  SCENARIOS[(gameState.round - 1) % SCENARIOS.length].multiplier >= 0.6 ? 'bg-orange-100 text-orange-700 border-orange-300' :
+                  'bg-red-100 text-red-700 border-red-300'
+                }`}>
+                  ×{SCENARIOS[(gameState.round - 1) % SCENARIOS.length].multiplier.toFixed(1)}
+                </span>
+              </div>
+            </div>
+          )}
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={onConfirmNextRound}
+            className="w-full py-6 bg-green-500 text-white rounded-2xl font-mono font-bold uppercase text-xl border-4 border-green-700 shadow-[0_8px_0_#166534] hover:bg-green-400 flex items-center justify-center gap-3"
+          >
+            <ChevronRight className="w-6 h-6 fill-white" />
+            Bắt Đầu Vòng {gameState.round}
+          </motion.button>
+
+          <button
+            onClick={onReset}
+            className="w-full py-3 bg-white/10 border-2 border-white/20 rounded-xl font-mono font-bold uppercase text-sm text-white/60 hover:bg-white/20 flex items-center justify-center gap-2"
+          >
+            <RefreshCw className="w-4 h-4" /> Reset Game
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
+
   // ── Normal Dashboard ───────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#86efac] text-[#1e3a8a] p-4 md:p-8 font-sans relative overflow-hidden">
@@ -138,14 +268,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
           <h1 className="text-4xl md:text-5xl font-mono font-bold uppercase tracking-tighter text-blue-600 drop-shadow-sm">
             The Energy Hegemony
           </h1>
-          <p className="text-xs font-mono font-bold opacity-60 uppercase tracking-widest">Admin Control Center v2.0</p>
+          <p className="text-xs font-mono font-bold opacity-60 uppercase tracking-widest">Admin Control Center v3.0</p>
         </div>
-        <div className="bg-yellow-400 p-4 game-border-yellow rounded-xl text-center min-w-[120px]">
+        <div className="bg-yellow-400 p-4 game-border-yellow rounded-xl text-center min-w-[100px]">
           <div className="text-[10px] font-mono font-bold uppercase text-yellow-900">Round</div>
           <div className="text-4xl font-mono font-bold text-yellow-900">{gameState.round}</div>
           <div className="text-[9px] font-mono text-yellow-800 opacity-70">/ 20</div>
         </div>
       </header>
+
+      {/* Scenario Card — prominent full-width */}
+      <div className={`rounded-2xl p-5 mb-6 border-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 ${
+        currentScenario.multiplier >= 1.3 ? 'bg-green-50 border-green-400' :
+        currentScenario.multiplier >= 1.0 ? 'bg-blue-50 border-blue-300' :
+        currentScenario.multiplier >= 0.6 ? 'bg-orange-50 border-orange-400' :
+        'bg-red-50 border-red-400'
+      }`}>
+        <div className="flex-1">
+          <div className="text-[10px] font-mono font-bold uppercase opacity-50 tracking-widest mb-1">🎬 Kịch Bản Vòng {gameState.round}</div>
+          <div className="text-2xl font-mono font-bold text-blue-900 mb-1">{currentScenario.name}</div>
+          <div className="text-sm text-gray-600">{currentScenario.description}</div>
+        </div>
+        <div className="flex flex-col items-center gap-2 shrink-0">
+          <div className={`text-4xl font-mono font-bold px-5 py-3 rounded-xl border-4 ${
+            currentScenario.multiplier >= 1.3 ? 'text-green-700 bg-green-100 border-green-400' :
+            currentScenario.multiplier >= 1.0 ? 'text-blue-700 bg-blue-100 border-blue-300' :
+            currentScenario.multiplier >= 0.6 ? 'text-orange-700 bg-orange-100 border-orange-400' :
+            'text-red-700 bg-red-100 border-red-400'
+          }`}>×{currentScenario.multiplier.toFixed(1)}</div>
+          <div className="text-[10px] font-mono opacity-60 text-center">
+            GENCO: {Math.round(400 * currentScenario.multiplier)} MW
+            &nbsp;|&nbsp;
+            CONSUMER: {Math.round(300 * currentScenario.multiplier)} MW
+          </div>
+        </div>
+      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -162,7 +319,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
             <div className="w-full bg-red-100 h-4 mt-2 rounded-full border-2 border-red-600 overflow-hidden">
               <motion.div animate={{ width: `${gameState.eh}%` }} className={`h-full ${gameState.eh < 40 ? 'bg-red-700 animate-pulse' : 'bg-red-500'}`} />
             </div>
-            {gameState.eh < 40 && <p className="text-xs font-mono text-red-600 mt-1 font-bold animate-pulse">⚠️ NGUY HIỂM</p>}
+            {gameState.eh < 40 && <p className="text-xs font-mono text-red-600 mt-1 font-bold animate-pulse">⚠️ NGUY HIỂM — &lt;20% GAME OVER</p>}
           </div>
         </motion.div>
 
@@ -176,7 +333,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
             <div className="w-full bg-blue-100 h-4 mt-2 rounded-full border-2 border-blue-600 overflow-hidden">
               <motion.div animate={{ width: `${gameState.ss}%` }} className={`h-full ${gameState.ss < 40 ? 'bg-blue-700 animate-pulse' : 'bg-blue-500'}`} />
             </div>
-            {gameState.ss < 40 && <p className="text-xs font-mono text-blue-600 mt-1 font-bold animate-pulse">⚠️ NGUY HIỂM</p>}
+            {gameState.ss < 40 && <p className="text-xs font-mono text-blue-600 mt-1 font-bold animate-pulse">⚠️ NGUY HIỂM — &lt;20% GAME OVER</p>}
           </div>
         </motion.div>
 
@@ -195,7 +352,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
       {/* Decisions Panel + Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-        {/* ── Decision Panel (Đặc trưng Lênin: minh bạch quyết định) ── */}
+        {/* ── Decision Panel ── */}
         <div className="game-border-blue p-6 bg-white/90 rounded-2xl">
           <div className="flex justify-between items-center mb-4 border-b-2 border-blue-100 pb-2">
             <h2 className="text-xs font-mono font-bold uppercase opacity-50">Quyết Định Vòng {gameState.round}</h2>
@@ -297,12 +454,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ gameState, playe
           </button>
         </div>
 
+        {/* Add Player buttons */}
+        <div className="flex gap-3">
+          <button
+            onClick={() => onAddPlayer('GENCO')}
+            className="flex-1 py-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl text-xs font-mono font-bold uppercase text-yellow-700 hover:bg-yellow-100 transition-all flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Thêm GENCO
+          </button>
+          <button
+            onClick={() => onAddPlayer('CONSUMER')}
+            className="flex-1 py-3 bg-blue-50 border-2 border-blue-300 rounded-xl text-xs font-mono font-bold uppercase text-blue-700 hover:bg-blue-100 transition-all flex items-center justify-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> Thêm CONSUMER
+          </button>
+        </div>
+
         {!allReady && (
           <button
             onClick={onProcessRound}
             className="w-full py-3 bg-white/50 border-2 border-dashed border-blue-300 rounded-xl text-[10px] font-mono font-bold uppercase text-blue-400 hover:bg-white hover:text-blue-600 transition-all"
           >
-            Debug: Force Execute Round (Bypass Readiness)
+            ⚡ Force Execute Round — Nhóm chưa chọn sẽ có option = null
           </button>
         )}
       </div>
