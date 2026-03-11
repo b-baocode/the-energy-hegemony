@@ -19,10 +19,10 @@ export const INITIAL_PLAYERS: Partial<Player>[] = [
   { group_name: 'G1', role: 'GENCO', balance: 2000, gdp_score: 0, green_points: 0 },
   { group_name: 'G2', role: 'GENCO', balance: 2000, gdp_score: 0, green_points: 0 },
   { group_name: 'G3', role: 'GENCO', balance: 2000, gdp_score: 0, green_points: 0 },
-  { group_name: 'G4', role: 'CONSUMER', balance: 1000, gdp_score: 500, green_points: 0 },
-  { group_name: 'G5', role: 'CONSUMER', balance: 1000, gdp_score: 500, green_points: 0 },
-  { group_name: 'G6', role: 'CONSUMER', balance: 1000, gdp_score: 500, green_points: 0 },
-  { group_name: 'G7', role: 'EVN', balance: 3000, gdp_score: 0, green_points: 0 },
+  { group_name: 'G4', role: 'CONSUMER', balance: 1500, gdp_score: 500, green_points: 0 },
+  { group_name: 'G5', role: 'CONSUMER', balance: 1500, gdp_score: 500, green_points: 0 },
+  { group_name: 'G6', role: 'CONSUMER', balance: 1500, gdp_score: 500, green_points: 0 },
+  { group_name: 'G7', role: 'EVN', balance: 4000, gdp_score: 0, green_points: 0 },
 ];
 
 export const SCENARIOS: { name: string; multiplier: number; description: string }[] = [
@@ -101,11 +101,11 @@ export function processRound(
 
   // ── Step 5: Update global EH ─────────────────────────────────────────────
   const newEh = (realEnergy / Math.max(1, totalDemand)) * 100;
-  eh = Math.round((eh * 0.6 + newEh * 0.4)); // Smoothing: 60% trọng số lịch sử
+  eh = Math.round((eh * 0.65 + newEh * 0.35)); // Smoothing: 65% trọng số lịch sử — ổn định hơn
   eh = Math.max(0, Math.min(100, eh));
 
   let ssDelta = 0;
-  if (realEnergy < totalDemand * 0.8) ssDelta -= 12; // Thiếu điện → bất ổn xã hội
+  if (realEnergy < totalDemand * 0.85) ssDelta -= 8; // Thiếu điện → bất ổn xã hội
 
   // ── Step 6: Process GENCO finances ───────────────────────────────────────
   // Phân bổ doanh thu: lobby ưu tiên được 60%, còn lại chia đều
@@ -130,22 +130,22 @@ export function processRound(
     const revenue = myShare * 1.2; // Đơn giá điện: 1.2$/MW
 
     if (p.last_option === 1) {
-      // Tăng công suất: flat reward, không lãi kép
-      p.balance += revenue - baseCost + 700;
-      ssDelta -= 3; // Khai thác tối đa → nhẹ bất ổn
+      // Tăng công suất: flat reward giảm từ 700→350 để không quá dominant
+      p.balance += revenue - baseCost + 350;
+      ssDelta -= 5; // Khai thác tối đa → bất ổn môi trường
     } else if (p.last_option === 2) {
-      // Bảo trì: chi phí thấp hơn vòng này + tăng dân sinh (hạ tầng ổn định)
-      p.balance += revenue - baseCost * 0.5;
-      ssDelta += 2;
-    } else if (p.last_option === 3) {
-      // Lobby: trả phí lobby cho EVN, nhưng nhận được nhiều hơn + tăng quan hệ (GP)
-      p.balance += revenue - baseCost - 300; // 300 = phí lobby
-      p.green_points += 2;
-    } else if (p.last_option === 4) {
-      // Chuyển đổi Xanh
-      p.green_points += 15;
-      p.balance += revenue - baseCost + 200; // Thưởng xanh
+      // Bảo trì: chi phí thấp + thưởng độ tin tưởng
+      p.balance += revenue - baseCost * 0.5 + 150;
       ssDelta += 3;
+    } else if (p.last_option === 3) {
+      // Lobby: phí giảm 300→150 để viable hơn
+      p.balance += revenue - baseCost - 150; // 150 = phí lobby
+      p.green_points += 3;
+    } else if (p.last_option === 4) {
+      // Chuyển đổi Xanh: tốt cho dài hạn
+      p.green_points += 15;
+      p.balance += revenue - baseCost + 250; // Tăng thưởng xanh từ 200→250
+      ssDelta += 5;
     } else {
       // Không chọn (null)
       p.balance += revenue - baseCost;
@@ -157,26 +157,25 @@ export function processRound(
     const baseGdp = 80 * multiplier;
 
     if (p.last_option === 1) {
-      // Mở rộng xưởng: có chi phí đầu tư, GDP tăng cao
+      // Mở rộng xưởng: GDP cao, chi phí đầu tư giảm 150→100
       p.gdp_score += baseGdp * 1.5 + 40;
-      p.balance -= 150;
+      p.balance -= 100;
     } else if (p.last_option === 2) {
-      // Tiết kiệm điện: thu được lợi tài chính, GDP nhẹ, SS tốt hơn (+8 thay vì +5)
+      // Tiết kiệm điện: nerf reward 250→180 để không dominant
       p.gdp_score += baseGdp * 0.25 + 20;
-      p.balance += 250;
+      p.balance += 180;
       ssDelta += 8;
     } else if (p.last_option === 3) {
-      // Bãi công đòi giá: có lợi ngắn hạn (đòi được quyền lợi), nhưng hại SS
-      // Phản ánh: mâu thuẫn giai cấp — công nhân tranh đấu có kết quả nhưng gây bất ổn
+      // Bãi công: chi phí giảm 100→50, phản ánh mâu thuẫn giai cấp
       p.gdp_score += baseGdp * 0.75 + 60;
-      p.balance -= 100;
+      p.balance -= 50;
       ssDelta -= 8;
     } else if (p.last_option === 4) {
-      // Hỗ trợ hạ tầng: đầu tư vào lưới điện → dài hạn có lợi + tăng EH trực tiếp
-      p.gdp_score += baseGdp * 0.5 + 40;
-      p.balance -= 400;
-      grid_limit += 80;
-      eh = Math.min(100, eh + 3);
+      // Hỗ trợ hạ tầng: chi phí giảm 400→200, GDP tăng lên, grid tăng 80→100
+      p.gdp_score += baseGdp * 0.8 + 60;
+      p.balance -= 200;
+      grid_limit += 100;
+      eh = Math.min(100, eh + 4);
     } else {
       p.gdp_score += baseGdp;
     }
@@ -184,48 +183,52 @@ export function processRound(
     // Đặc trưng 3: EVN điều tiết → tác động trực tiếp lên CONSUMER
     if (evnCapPrice) {
       // Áp trần giá: CONSUMER hưởng lợi trực tiếp
-      p.gdp_score += 30;
-      p.balance += 100;
+      p.gdp_score += 25;
+      p.balance += 80;
     }
     if (evnRaiseFee) {
-      // Tăng phí vận chuyển: CONSUMER chịu thiệt
-      p.balance -= 200;
-      p.gdp_score -= 20;
+      // Tăng phí vận chuyển: CONSUMER chịu thiệt (giảm từ 200→150 và 20→15)
+      p.balance -= 150;
+      p.gdp_score -= 15;
     }
   });
 
   // ── Step 8: Process EVN finances (Đặc trưng 2 & 3) ───────────────────────
   if (evn) {
-    // Phí vận chuyển cơ bản: giảm xuống 0.10 để cân bằng hơn
-    const transmissionFee = realEnergy * 0.10;
+    // Phí vận chuyển: tăng lên 0.15 để EVN có income bền vững hơn
+    const transmissionFee = realEnergy * 0.15;
+
+    // Trợ cấp chính phủ: EVN là DNNN → nhận hỗ trợ cố định
+    const govSubsidy = 350;
 
     // Thưởng thêm nếu GENCO nào đó lobby → EVN nhận phí lobby
-    const lobbyFee = lobbyingGenco ? 300 : 0;
+    const lobbyFee = lobbyingGenco ? 150 : 0;
 
-    evn.balance += transmissionFee + lobbyFee;
+    evn.balance += transmissionFee + govSubsidy + lobbyFee;
 
     if (evnOption === 1) {
-      // Nâng cấp lưới: đầu tư hạ tầng
-      evn.balance -= 1500;
-      grid_limit = Math.round(grid_limit * 1.25);
+      // Nâng cấp lưới: chi phí giảm 1500→900, grid *1.25→*1.2
+      evn.balance -= 900;
+      grid_limit = Math.round(grid_limit * 1.2);
     } else if (evnOption === 2) {
-      // Áp trần giá bán: hy sinh lợi nhuận để ổn định xã hội
-      evn.balance -= 1200;
-      ssDelta += 18;
+      // Áp trần giá bán: chi phí giảm 1200→700, SS +18→+15
+      evn.balance -= 700;
+      ssDelta += 15;
     } else if (evnOption === 3) {
-      // Tăng phí vận chuyển: thu lợi từ tất cả
-      evn.balance += 450;
-      ssDelta -= 12;
+      // Tăng phí vận chuyển: thu lợi thêm, giảm từ 450→350 và SS -12→-8
+      evn.balance += 350;
+      ssDelta -= 8;
     } else if (evnOption === 4) {
-      // Cắt điện luân phiên: bảo vệ grid dài hạn nhưng hại xã hội
-      grid_limit += 150;
-      eh = Math.max(0, eh - 5);
-      ssDelta -= 15;
+      // Cắt điện luân phiên: grid +150→+200, SS -15→-10
+      grid_limit += 200;
+      eh = Math.max(0, eh - 4);
+      ssDelta -= 10;
     }
   }
 
-  // ── Step 9: Finalise SS ──────────────────────────────────────────────────
-  ss = Math.max(0, Math.min(100, ss + ssDelta));
+  // ── Step 9: Finalise SS — cap delta để tránh collapse tức thì ─────────────
+  const cappedSsDelta = Math.max(-20, ssDelta); // Tối đa mất 20 SS/vòng
+  ss = Math.max(0, Math.min(100, ss + cappedSsDelta));
 
   // ── Step 10: Reset ready status ──────────────────────────────────────────
   updatedPlayers.forEach(p => { p.is_ready = false; });
@@ -309,11 +312,13 @@ export function triggerEvent(state: GameState): Partial<GameState> {
 export function computeFinalScore(player: Player, gameState: GameState): number {
   let score: number;
   if (player.role === 'GENCO') {
-    score = Math.round(player.balance + player.green_points * 15);
+    // GP×20 (tăng từ 15) để OP-04 Xanh cạnh tranh với OP-01
+    score = Math.round(player.balance + player.green_points * 20);
   } else if (player.role === 'CONSUMER') {
     score = Math.round(player.gdp_score * 2 + player.balance);
   } else {
-    score = Math.round(player.balance + (gameState.eh + gameState.ss) * 8);
+    // ×10 (tăng từ 8) để EVN được thưởng xứng đáng khi duy trì hệ thống
+    score = Math.round(player.balance + (gameState.eh + gameState.ss) * 10);
   }
 
   // Áp dụng án phạt nếu hệ thống sụp đổ trước vòng 20

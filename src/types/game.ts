@@ -59,26 +59,26 @@ export const GENCO_OPTIONS: GameOption[] = [
   {
     id: 1,
     name: 'Tăng công suất',
-    personal_impact: 'Tiền +700 (flat) + doanh thu cao hơn',
-    system_impact: 'Phát điện +40%, SS -3 (khai thác môi trường)',
+    personal_impact: 'Tiền +350 (flat) + doanh thu cao hơn',
+    system_impact: 'Phát điện +40%, SS -5 (khai thác môi trường)',
   },
   {
     id: 2,
     name: 'Bảo trì máy',
-    personal_impact: 'Chi phí vận hành giảm 50%',
-    system_impact: 'Sản lượng ổn định, SS +2 (dân tin tưởng)',
+    personal_impact: 'Chi phí -50% + thưởng uy tín +150$',
+    system_impact: 'Sản lượng ổn định, SS +3 (dân tin tưởng)',
   },
   {
     id: 3,
     name: 'Lobby EVN',
-    personal_impact: 'Chiếm 60% doanh thu — Nhận +2 Green Points',
+    personal_impact: 'Chiếm 60% doanh thu — Nhận +3 Green Points',
     system_impact: 'EH không đổi, bất bình đẳng tăng (Lênin 1)',
   },
   {
     id: 4,
     name: 'Chuyển đổi Xanh',
-    personal_impact: 'Điểm Xanh +15, Tiền +200 bonus',
-    system_impact: 'SS +3, EH bền vững dài hạn',
+    personal_impact: 'Điểm Xanh +15, Tiền +250 bonus',
+    system_impact: 'SS +5, EH bền vững dài hạn',
   },
 ];
 
@@ -88,26 +88,26 @@ export const CONSUMER_OPTIONS: GameOption[] = [
   {
     id: 1,
     name: 'Mở rộng xưởng',
-    personal_impact: 'GDP +120, Tiền -150 (đầu tư)',
+    personal_impact: 'GDP +120, Tiền -100 (đầu tư)',
     system_impact: 'Cầu điện +20%, EH giảm nếu thiếu cung',
   },
   {
     id: 2,
     name: 'Tiết kiệm điện',
-    personal_impact: 'Tiền +250, GDP +20 (hiệu quả)',
+    personal_impact: 'Tiền +180, GDP +20 (hiệu quả)',
     system_impact: 'Cầu điện -15%, SS +8 (ổn định cao)',
   },
   {
     id: 3,
     name: 'Bãi công đòi giá',
-    personal_impact: 'GDP +60, Tiền -100 (đòi được quyền lợi)',
+    personal_impact: 'GDP +60, Tiền -50 (đòi được quyền lợi)',
     system_impact: 'SS -8 (mâu thuẫn giai cấp — Lênin 3)',
   },
   {
     id: 4,
     name: 'Hỗ trợ hạ tầng',
-    personal_impact: 'Tiền -400, GDP +40',
-    system_impact: 'L_grid +80 MW, EH +3 (năng suất tăng)',
+    personal_impact: 'Tiền -200, GDP +70',
+    system_impact: 'L_grid +100 MW, EH +4 (năng suất tăng)',
   },
 ];
 
@@ -118,26 +118,26 @@ export const EVN_OPTIONS: GameOption[] = [
   {
     id: 1,
     name: 'Nâng cấp lưới',
-    personal_impact: 'Tiền -1500 (đầu tư hạ tầng)',
-    system_impact: 'L_grid +25% — toàn hệ thống hưởng lợi (Lênin Đặc trưng 2)',
+    personal_impact: 'Tiền -900 (đầu tư hạ tầng)',
+    system_impact: 'L_grid +20% — toàn hệ thống hưởng lợi (Lênin Đặc trưng 2)',
   },
   {
     id: 2,
     name: 'Áp trần giá bán',
-    personal_impact: 'Tiền -1200 (hy sinh lợi nhuận)',
-    system_impact: 'SS +18, CONSUMER nhận +100$, +30 GDP (ổn định xã hội)',
+    personal_impact: 'Tiền -700 (hy sinh lợi nhuận)',
+    system_impact: 'SS +15, CONSUMER nhận +80$, +25 GDP (ổn định xã hội)',
   },
   {
     id: 3,
     name: 'Tăng phí vận chuyển',
-    personal_impact: 'Tiền +450 (thu tô từ hạ tầng)',
-    system_impact: 'SS -12, CONSUMER mất -200$, -20 GDP (Lênin Đặc trưng 3)',
+    personal_impact: 'Tiền +350 (thu tô từ hạ tầng)',
+    system_impact: 'SS -8, CONSUMER mất -150$, -15 GDP (Lênin Đặc trưng 3)',
   },
   {
     id: 4,
     name: 'Cắt điện luân phiên',
     personal_impact: 'Tiền không đổi',
-    system_impact: 'L_grid +150 MW, EH -5, SS -15 (bảo vệ hạ tầng dài hạn)',
+    system_impact: 'L_grid +200 MW, EH -4, SS -10 (bảo vệ hạ tầng dài hạn)',
   },
 ];
 
