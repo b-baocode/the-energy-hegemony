@@ -23,7 +23,7 @@ const GameGuide: React.FC = () => {
         className="w-full flex items-center justify-between bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-4 game-border-blue hover:bg-white transition-all"
       >
         <span className="font-mono font-bold text-blue-700 uppercase tracking-widest text-sm">
-          📖 Hướng Dẫn Chơi &amp; Lý Thuyết
+          📖 Hướng Dẫn Chơi & Lý Thuyết
         </span>
         {open ? <ChevronUp className="w-5 h-5 text-blue-500" /> : <ChevronDown className="w-5 h-5 text-blue-500" />}
       </button>
@@ -64,12 +64,12 @@ const GameGuide: React.FC = () => {
                   <div>
                     <h3 className="font-mono font-bold uppercase text-xs tracking-widest opacity-50 mb-2">Tổng Quan</h3>
                     <p className="text-sm leading-relaxed">
-                      <b>The Energy Hegemony</b> mô phỏng thị trường điện lực. Các nhóm (G1–…) đưa ra quyết định mỗi vòng.
+                      <b>The Energy Hegemony</b> mô phỏng thị trường điện lực. Các nhóm đưa ra quyết định mỗi vòng.
                       Trò chơi kết thúc sau <b>20 vòng</b> hoặc khi <b>EH &lt; 20%</b> hoặc <b>SS &lt; 20%</b>.
                     </p>
                     <div className="mt-3 p-3 bg-red-50 border-2 border-red-200 rounded-xl text-xs">
-                      <span className="font-bold text-red-700">⚠️ Án Phạt Sụp Đổ Sớm:</span>
-                      <span className="text-red-600 ml-1">Nếu hệ thống sụp đổ trước vòng 20, GENCO &amp; CONSUMER bị phạt còn <b>30% điểm</b>. EVN được <b>miễn phạt</b> (nhà nước chịu trách nhiệm hệ thống).</span>
+                      <span className="font-bold text-red-700">⚠️ Án Phạt Sụp Đổ Sớm (v4.1):</span>
+                      <span className="text-red-600 ml-1">Nếu hệ thống sụp đổ trước vòng 20, cả ba khối đều bị phạt điểm. GENCO/CONSUMER: <b>×0.3</b> | EVN: <b>×0.5</b>.</span>
                     </div>
                   </div>
 
@@ -77,69 +77,69 @@ const GameGuide: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-yellow-50 rounded-xl p-4 border-2 border-yellow-300">
                       <div className="text-xs font-mono font-bold uppercase text-yellow-700 mb-2">⚡ GENCO</div>
-                      <p className="text-xs leading-relaxed mb-3">Nhà sản xuất điện. Mục tiêu: tối đa <b>Balance</b>. Cạnh tranh giành doanh thu từ lưới điện.</p>
+                      <p className="text-xs leading-relaxed mb-3">Mục tiêu: tối đa <b>Balance + GreenPoints × 15</b>.</p>
                       <div className="space-y-2 text-xs">
                         <div className="bg-yellow-100/50 rounded p-2">
                           <div className="font-bold text-yellow-800">OP-01: Tăng công suất</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +700$ (tiền mặt).<br/><b>Chung:</b> Hệ thống +40% điện, Social Stability -3% (ô nhiễm).</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +700$.<br/><b>Chung:</b> Phát điện +40%, SS -3%.</div>
                         </div>
                         <div className="bg-yellow-100/50 rounded p-2">
                           <div className="font-bold text-yellow-800">OP-02: Bảo trì máy</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Giảm 50% chi phí vòng này.<br/><b>Chung:</b> Giữ vững Economy Health.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Chi phí -50%.<br/><b>Chung:</b> SS <b>+2%</b>.</div>
                         </div>
                         <div className="bg-yellow-200/50 rounded p-2">
                           <div className="font-bold text-yellow-800">OP-03: Lobby EVN</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Cướp lấy 60% tổng doanh thu điện toàn quốc.<br/><b>Chung:</b> Tạo bất bình đẳng, nhóm khác chỉ còn 20%.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> 60% doanh thu + Nhận <b>+2 Green Points</b>.</div>
                         </div>
                         <div className="bg-yellow-100/50 rounded p-2">
                           <div className="font-bold text-yellow-800">OP-04: Chuyển đổi Xanh</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +15 Điểm Xanh, +200$.<br/><b>Chung:</b> Social Stability +3%. Cơ sở để game kéo dài.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +15 Green Points, +200$.<br/><b>Chung:</b> SS +3%.</div>
                         </div>
                       </div>
                     </div>
                     
                     <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-300">
                       <div className="text-xs font-mono font-bold uppercase text-blue-700 mb-2">🏭 CONSUMER</div>
-                      <p className="text-xs leading-relaxed mb-3">Doanh nghiệp / Công nghiệp. Mục tiêu: tối đa <b>GDP Score × 2 + Balance</b>.</p>
+                      <p className="text-xs leading-relaxed mb-3">Mục tiêu: tối đa <b>GDP Score × 2 + Balance</b>.</p>
                       <div className="space-y-2 text-xs">
                         <div className="bg-blue-100/50 rounded p-2">
                           <div className="font-bold text-blue-800">OP-01: Mở rộng xưởng</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +120 GDP, -150$.<br/><b>Chung:</b> Cần thêm 20% điện. Dễ sập Economy Health nếu thiếu cung.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +120 GDP, -150$.<br/><b>Chung:</b> Cầu điện +20%.</div>
                         </div>
                         <div className="bg-blue-100/50 rounded p-2">
                           <div className="font-bold text-blue-800">OP-02: Tiết kiệm điện</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +250$, +20 GDP.<br/><b>Chung:</b> Giảm 15% áp lực điện, Social Stability +5%.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +250$, +20 GDP.<br/><b>Chung:</b> Cầu -15%, SS <b>+8%</b>.</div>
                         </div>
                         <div className="bg-blue-200/50 rounded p-2">
                           <div className="font-bold text-blue-800">OP-03: Bãi công đòi giá</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Đòi được +60 GDP, nhưng mất -100$.<br/><b>Chung:</b> Gây mâu thuẫn giai cấp, Social Stability -8%.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +60 GDP, -100$.<br/><b>Chung:</b> SS -8%.</div>
                         </div>
                         <div className="bg-blue-100/50 rounded p-2">
                           <div className="font-bold text-blue-800">OP-04: Hỗ trợ hạ tầng</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Bỏ tiền túi -400$, nhận +40 GDP.<br/><b>Chung:</b> Lưới điện quốc gia Grid Limit +80 MW. Cả game hưởng lợi.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> -400$, +40 GDP.<br/><b>Chung:</b> Grid +80 MW, EH <b>+3%</b>.</div>
                         </div>
                       </div>
                     </div>
                     
                     <div className="bg-red-50 rounded-xl p-4 border-2 border-red-300">
                       <div className="text-xs font-mono font-bold uppercase text-red-700 mb-2">🏛️ EVN — Nhà nước</div>
-                      <p className="text-xs leading-relaxed mb-3">Độc quyền lưới. Kiểm soát Grid Limit. Quyết định ảnh hưởng trực tiếp CONSUMER. <b className="text-green-700">Miễn án phạt sụp đổ.</b></p>
+                      <p className="text-xs leading-relaxed mb-3">Mục tiêu: Duy trì hệ thống. <b>×0.5</b> penalty nếu sập sớm.</p>
                       <div className="space-y-2 text-xs">
                         <div className="bg-red-100/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-01: Nâng cấp lưới</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Tiêu tốn -1200$ ngân sách.<br/><b>Chung:</b> Mở rộng Grid Capacity +25%, tất cả cùng hưởng lợi.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> -1200$.<br/><b>Chung:</b> Grid +25%.</div>
                         </div>
                         <div className="bg-red-200/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-02: Áp trần giá bán</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Chịu lỗ -800$ để trợ giá.<br/><b>Chung:</b> Cứu nguy Social Stability (+25%). CONSUMER hưởng lợi (+100$, +30 GDP).</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> -800$.<br/><b>Chung:</b> SS +25%, CONSUMER +100$.</div>
                         </div>
                         <div className="bg-red-200/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-03: Tăng phí vận chuyển</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Thu lãi đậm +600$ bù ngân sách.<br/><b>Chung:</b> Bóp nghẹt doanh nghiệp (CONSUMER -200$, -20 GDP), Social Stability -12%.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +600$.<br/><b>Chung:</b> SS -12%, CONSUMER -200$.</div>
                         </div>
                         <div className="bg-red-100/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-04: Cắt điện luân phiên</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> Không tốn tiền.<br/><b>Chung:</b> Bảo vệ lưới điện dài hạn (+150 MW), nhưng Economy Health -5%, Social Stability -15%.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> 0$.<br/><b>Chung:</b> Grid +150 MW, EH -5, SS -15.</div>
                         </div>
                       </div>
                     </div>
@@ -352,6 +352,8 @@ const toDbState = (s: GameState) => ({
   ss:                      s.ss,
   grid_limit:              s.grid_limit,
   current_event:           s.current_event,
+  next_event_prediction:     s.next_event_prediction,
+  is_started:            s.is_started,
   is_game_over:            s.is_game_over,
   waiting_for_admin_confirm: s.waiting_for_admin_confirm,
   history:                 s.history,
@@ -379,7 +381,7 @@ export default function App() {
 
   // Start/restart timer when round changes
   useEffect(() => {
-    if (view === 'PLAYER' && !gameState.is_game_over && !gameState.waiting_for_admin_confirm) {
+    if (view === 'PLAYER' && gameState.is_started && !gameState.is_game_over && !gameState.waiting_for_admin_confirm) {
       setRoundTimer(30);
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = setInterval(() => {
@@ -391,11 +393,14 @@ export default function App() {
           return prev - 1;
         });
       }, 1000);
+    } else {
+      setRoundTimer(30);
+      if (timerRef.current) clearInterval(timerRef.current);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [gameState.round, view, gameState.is_game_over, gameState.waiting_for_admin_confirm]);
+  }, [gameState.round, view, gameState.is_started, gameState.is_game_over, gameState.waiting_for_admin_confirm]);
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
@@ -447,8 +452,11 @@ export default function App() {
     const stateSub = supabase
       .channel('game_state_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'game_state' }, (payload) => {
-        setGameState(payload.new as GameState);
-      }).subscribe();
+        console.log('GameState Realtime Update:', payload.new);
+        if (payload.new) setGameState(payload.new as GameState);
+      }).subscribe((status) => {
+        console.log('GameState Subscription Status:', status);
+      });
 
     const playersSub = supabase
       .channel('players_changes')
@@ -530,6 +538,9 @@ export default function App() {
     if (stateError) {
       console.error('State update error:', stateError);
       alert('Lỗi cập nhật game: ' + stateError.message);
+    } else {
+      // Optimistic update
+      setGameState(finalState);
     }
 
     const { error: playersError } = await supabase.from('players').upsert(updatedPlayers);
@@ -544,7 +555,24 @@ export default function App() {
       .from('game_state')
       .update({ waiting_for_admin_confirm: false })
       .eq('id', 'global');
-    if (error) console.error(error);
+    if (error) {
+      console.error(error);
+    } else {
+      setGameState(prev => ({ ...prev, waiting_for_admin_confirm: false }));
+    }
+  };
+
+  // Admin starts the game
+  const handleStartGame = async () => {
+    const { error } = await supabase
+      .from('game_state')
+      .update({ is_started: true })
+      .eq('id', 'global');
+    if (error) {
+      console.error(error);
+    } else {
+      setGameState(prev => ({ ...prev, is_started: true }));
+    }
   };
 
   // Admin adds a new player group
@@ -575,8 +603,10 @@ export default function App() {
 
     console.log('Executing reset flow...');
 
+    const resetState = { ...INITIAL_GAME_STATE, is_started: false };
+
     // 1. Reset local state ngay lập tức (UI feedback tức thì)
-    setGameState(INITIAL_GAME_STATE);
+    setGameState(resetState);
     setPlayers([]);
     setCurrentPlayer(null);
     setAdminAuthenticated(false);
@@ -587,7 +617,7 @@ export default function App() {
       console.log('Syncing game_state reset...');
       const { error: resetError } = await supabase
         .from('game_state')
-        .update(toDbState(INITIAL_GAME_STATE))
+        .update(toDbState(resetState))
         .eq('id', 'global');
       if (resetError) {
         console.error('Reset state DB error:', resetError);
@@ -818,6 +848,7 @@ ALTER TABLE players DISABLE ROW LEVEL SECURITY;`}
           onReset={handleReset}
           onProcessRound={handleProcessRound}
           onConfirmNextRound={handleConfirmNextRound}
+          onStartGame={handleStartGame}
           onAddPlayer={handleAddPlayer}
         />
       ) : currentPlayer ? (

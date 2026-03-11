@@ -9,6 +9,7 @@ export const INITIAL_GAME_STATE: GameState = {
   grid_limit: 1000,
   current_event: null,
   next_event_prediction: null,
+  is_started: false,
   is_game_over: false,
   waiting_for_admin_confirm: false,
   history: [{ round: 1, eh: 100, ss: 100, grid_limit: 1000 }]
@@ -133,11 +134,13 @@ export function processRound(
       p.balance += revenue - baseCost + 700;
       ssDelta -= 3; // Khai thác tối đa → nhẹ bất ổn
     } else if (p.last_option === 2) {
-      // Bảo trì: chi phí thấp hơn vòng này
+      // Bảo trì: chi phí thấp hơn vòng này + tăng dân sinh (hạ tầng ổn định)
       p.balance += revenue - baseCost * 0.5;
+      ssDelta += 2;
     } else if (p.last_option === 3) {
-      // Lobby: trả phí lobby cho EVN, nhưng nhận được nhiều hơn
+      // Lobby: trả phí lobby cho EVN, nhưng nhận được nhiều hơn + tăng quan hệ (GP)
       p.balance += revenue - baseCost - 300; // 300 = phí lobby
+      p.green_points += 2;
     } else if (p.last_option === 4) {
       // Chuyển đổi Xanh
       p.green_points += 15;
@@ -158,10 +161,10 @@ export function processRound(
       p.gdp_score += baseGdp * 1.5 + 40;
       p.balance -= 150;
     } else if (p.last_option === 2) {
-      // Tiết kiệm điện: thu được lợi tài chính, GDP nhẹ, SS tốt hơn
+      // Tiết kiệm điện: thu được lợi tài chính, GDP nhẹ, SS tốt hơn (+8 thay vì +5)
       p.gdp_score += baseGdp * 0.25 + 20;
       p.balance += 250;
-      ssDelta += 5;
+      ssDelta += 8;
     } else if (p.last_option === 3) {
       // Bãi công đòi giá: có lợi ngắn hạn (đòi được quyền lợi), nhưng hại SS
       // Phản ánh: mâu thuẫn giai cấp — công nhân tranh đấu có kết quả nhưng gây bất ổn
@@ -169,10 +172,11 @@ export function processRound(
       p.balance -= 100;
       ssDelta -= 8;
     } else if (p.last_option === 4) {
-      // Hỗ trợ hạ tầng: đầu tư vào lưới điện → dài hạn có lợi
+      // Hỗ trợ hạ tầng: đầu tư vào lưới điện → dài hạn có lợi + tăng EH trực tiếp
       p.gdp_score += baseGdp * 0.5 + 40;
       p.balance -= 400;
       grid_limit += 80;
+      eh = Math.min(100, eh + 3);
     } else {
       p.gdp_score += baseGdp;
     }
@@ -293,30 +297,30 @@ export function triggerEvent(state: GameState): Partial<GameState> {
 /**
  * Compute the final score for each player at game end.
  * Scoring tường minh — phản ánh mục tiêu từng role:
- *   GENCO: balance + green_points × 20 (đầu tư dài hạn)
- *   CONSUMER: gdp_score × 2 + balance (tăng trưởng kinh tế)
- *   EVN: balance + (eh + ss) × 10 (ổn định hệ thống là ưu tiên)
+ *   GENCO: balance + green_points × 15 (đã giảm từ 20 để cân bằng)
+ *   CONSUMER: gdp_score × 2 + balance
+ *   EVN: balance + (eh + ss) × 10
  *
  * ÁN PHẠT SỤP ĐỔ SỚM:
- *   Nếu hệ thống sụp đổ trước vòng 20 (is_game_over AND round < 20):
- *   - GENCO & CONSUMER: điểm × 0.3 (bị phạt 70% — hành vi tư lợi phá hệ thống)
- *   - EVN: MIỄN PHẠT (nhà nước chịu trách nhiệm, không thể tự phạt mình)
+ *   Nếu hệ thống sụp đổ trước vòng 20:
+ *   - GENCO & CONSUMER: điểm × 0.3 (bị phạt 70%)
+ *   - EVN: điểm × 0.5 (bị phạt 50% trách nhiệm quản lý)
  */
 export function computeFinalScore(player: Player, gameState: GameState): number {
   let score: number;
   if (player.role === 'GENCO') {
-    score = Math.round(player.balance + player.green_points * 20);
+    score = Math.round(player.balance + player.green_points * 15);
   } else if (player.role === 'CONSUMER') {
     score = Math.round(player.gdp_score * 2 + player.balance);
   } else {
-    // EVN — miễn phạt sụp đổ sớm
-    return Math.round(player.balance + (gameState.eh + gameState.ss) * 10);
+    score = Math.round(player.balance + (gameState.eh + gameState.ss) * 10);
   }
 
-  // Áp dụng án phạt nếu hệ thống sụp đổ trước vòng 20 (round < 21 vì round đã tăng sau processRound)
+  // Áp dụng án phạt nếu hệ thống sụp đổ trước vòng 20
   const isEarlyCollapse = gameState.is_game_over && gameState.round <= 20 && (gameState.eh < 20 || gameState.ss < 20);
   if (isEarlyCollapse) {
-    score = Math.round(score * 0.3);
+    const penalty = player.role === 'EVN' ? 0.5 : 0.3;
+    score = Math.round(score * penalty);
   }
 
   return score;

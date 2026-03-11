@@ -13,6 +13,7 @@ interface AdminDashboardProps {
   onReset: () => void;
   onProcessRound: () => void;
   onConfirmNextRound: () => void;
+  onStartGame: () => void;
   onAddPlayer: (role: 'GENCO' | 'CONSUMER') => void;
 }
 
@@ -23,7 +24,7 @@ const ROLE_COLOR: Record<string, string> = {
 };
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
-  gameState, players, onReset, onProcessRound, onConfirmNextRound, onAddPlayer
+  gameState, players, onReset, onProcessRound, onConfirmNextRound, onStartGame, onAddPlayer
 }) => {
   const [effects, setEffects] = useState<{ id: number; icon: string; x: number; y: number }[]>([]);
   const readyCount = players.filter(p => p.is_ready).length;
@@ -91,9 +92,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ y: -10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}
               className="bg-red-900/80 border-2 border-red-400 rounded-2xl p-4 mb-4 text-center"
             >
-              <div className="text-red-300 font-mono text-xs uppercase tracking-widest mb-1">⚠️ Án Phạt Sụp Đổ Sớm</div>
-              <div className="text-white text-sm font-bold">GENCO &amp; CONSUMER: điểm × 0.3 (bị trừ 70%)</div>
-              <div className="text-green-300 text-xs mt-1">🏛️ EVN: miễn phạt (nhà nước chịu trách nhiệm hệ thống)</div>
+              <div className="text-red-300 font-mono text-xs uppercase tracking-widest mb-1">⚠️ Án Phạt Sụp Đổ Sớm (v4.1)</div>
+              <div className="text-white text-sm font-bold">GENCO & CONSUMER: điểm × 0.3 | EVN: điểm × 0.5</div>
+              <div className="text-red-200 text-[10px] mt-1 italic">Hệ thống sụp đổ khiến tài sản bốc hơi nhanh chóng.</div>
             </motion.div>
           )}
 
@@ -263,12 +264,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         ))}
       </AnimatePresence>
 
+      {/* Start Game Overlay */}
+      <AnimatePresence>
+        {!gameState.is_started && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#86efac]/90 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="max-w-md w-full bg-white p-12 rounded-[2.5rem] game-border-blue text-center shadow-2xl"
+            >
+              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Play className="w-10 h-10 text-blue-600 fill-current ml-1" />
+              </div>
+              <h2 className="text-4xl font-mono font-bold text-blue-900 mb-4 uppercase tracking-tighter text-center">Hegemony</h2>
+              <p className="text-blue-600/60 font-mono text-xs mb-10 uppercase tracking-widest text-center">Sẵn sàng để điều hành hệ thống?</p>
+              
+              <div className="bg-blue-50 border-2 border-blue-100 rounded-2xl p-6 mb-10 text-left">
+                <div className="text-[10px] font-mono font-bold text-blue-400 uppercase mb-3 text-center">Trạng thái hiện tại</div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-bold text-blue-900 uppercase">Nhóm đã join:</span>
+                  <span className="text-lg font-mono font-bold text-blue-600">{players.length}</span>
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={onStartGame}
+                className="w-full py-5 bg-blue-600 text-white rounded-2xl font-mono font-bold text-xl uppercase tracking-widest transition-all hover:bg-blue-500 border-b-4 border-blue-800 shadow-lg"
+              >
+                Bắt đầu ngay
+              </motion.button>
+              
+              <button 
+                onClick={onReset}
+                className="mt-6 text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+              >
+                ← Xóa trắng data để join lại
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <header className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-white/90 p-6 game-border-blue rounded-2xl">
         <div className="text-center md:text-left">
           <h1 className="text-4xl md:text-5xl font-mono font-bold uppercase tracking-tighter text-blue-600 drop-shadow-sm">
             The Energy Hegemony
           </h1>
-          <p className="text-xs font-mono font-bold opacity-60 uppercase tracking-widest">Admin Control Center v3.0</p>
+          <p className="text-xs font-mono font-bold opacity-60 uppercase tracking-widest">Admin Control Center v4.2</p>
         </div>
         <div className="bg-yellow-400 p-4 game-border-yellow rounded-xl text-center min-w-[100px]">
           <div className="text-[10px] font-mono font-bold uppercase text-yellow-900">Round</div>

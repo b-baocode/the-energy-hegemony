@@ -35,8 +35,9 @@ export interface GameState {
   grid_limit: number;
   current_event: string | null;
   next_event_prediction: string | null;
+  is_started: boolean;
   is_game_over: boolean;
-  waiting_for_admin_confirm: boolean; // Admin phải confirm trước khi bắt đầu vòng tiếp theo
+  waiting_for_admin_confirm: boolean; 
   history: {
     round: number;
     eh: number;
@@ -65,13 +66,13 @@ export const GENCO_OPTIONS: GameOption[] = [
     id: 2,
     name: 'Bảo trì máy',
     personal_impact: 'Chi phí vận hành giảm 50%',
-    system_impact: 'Sản lượng ổn định, EH bền vững',
+    system_impact: 'Sản lượng ổn định, SS +2 (dân tin tưởng)',
   },
   {
     id: 3,
     name: 'Lobby EVN',
-    personal_impact: 'Chiếm 60% doanh thu điện — nhóm khác chỉ còn 20%',
-    system_impact: 'EH không đổi, bất bình đẳng tăng (Đặc trưng Lênin 1)',
+    personal_impact: 'Chiếm 60% doanh thu — Nhận +2 Green Points',
+    system_impact: 'EH không đổi, bất bình đẳng tăng (Lênin 1)',
   },
   {
     id: 4,
@@ -94,19 +95,19 @@ export const CONSUMER_OPTIONS: GameOption[] = [
     id: 2,
     name: 'Tiết kiệm điện',
     personal_impact: 'Tiền +250, GDP +20 (hiệu quả)',
-    system_impact: 'Cầu điện -15%, SS +5 (ổn định)',
+    system_impact: 'Cầu điện -15%, SS +8 (ổn định cao)',
   },
   {
     id: 3,
     name: 'Bãi công đòi giá',
     personal_impact: 'GDP +60, Tiền -100 (đòi được quyền lợi)',
-    system_impact: 'SS -8 (mâu thuẫn giai cấp — Lênin Đặc trưng 3)',
+    system_impact: 'SS -8 (mâu thuẫn giai cấp — Lênin 3)',
   },
   {
     id: 4,
     name: 'Hỗ trợ hạ tầng',
     personal_impact: 'Tiền -400, GDP +40',
-    system_impact: 'L_grid +80 MW, dài hạn có lợi cho tất cả',
+    system_impact: 'L_grid +80 MW, EH +3 (năng suất tăng)',
   },
 ];
 
