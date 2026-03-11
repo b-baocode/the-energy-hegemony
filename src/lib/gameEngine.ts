@@ -22,7 +22,7 @@ export const INITIAL_PLAYERS: Partial<Player>[] = [
   { group_name: 'G4', role: 'CONSUMER', balance: 1000, gdp_score: 500, green_points: 0 },
   { group_name: 'G5', role: 'CONSUMER', balance: 1000, gdp_score: 500, green_points: 0 },
   { group_name: 'G6', role: 'CONSUMER', balance: 1000, gdp_score: 500, green_points: 0 },
-  { group_name: 'G7', role: 'EVN', balance: 5000, gdp_score: 0, green_points: 0 },
+  { group_name: 'G7', role: 'EVN', balance: 3000, gdp_score: 0, green_points: 0 },
 ];
 
 export const SCENARIOS: { name: string; multiplier: number; description: string }[] = [
@@ -196,8 +196,8 @@ export function processRound(
 
   // ── Step 8: Process EVN finances (Đặc trưng 2 & 3) ───────────────────────
   if (evn) {
-    // Phí vận chuyển cơ bản: giảm xuống 0.15 để cân bằng hơn
-    const transmissionFee = realEnergy * 0.15;
+    // Phí vận chuyển cơ bản: giảm xuống 0.10 để cân bằng hơn
+    const transmissionFee = realEnergy * 0.10;
 
     // Thưởng thêm nếu GENCO nào đó lobby → EVN nhận phí lobby
     const lobbyFee = lobbyingGenco ? 300 : 0;
@@ -205,19 +205,19 @@ export function processRound(
     evn.balance += transmissionFee + lobbyFee;
 
     if (evnOption === 1) {
-      // Nâng cấp lưới: đầu tư hạ tầng (Đặc trưng 2: mở rộng sở hữu nhà nước)
-      evn.balance -= 1200;
+      // Nâng cấp lưới: đầu tư hạ tầng
+      evn.balance -= 1500;
       grid_limit = Math.round(grid_limit * 1.25);
     } else if (evnOption === 2) {
       // Áp trần giá bán: hy sinh lợi nhuận để ổn định xã hội
-      evn.balance -= 800;
-      ssDelta += 25;
+      evn.balance -= 1200;
+      ssDelta += 18;
     } else if (evnOption === 3) {
-      // Tăng phí vận chuyển: thu lợi từ tất cả (bóc lột qua hạ tầng)
-      evn.balance += 600;
+      // Tăng phí vận chuyển: thu lợi từ tất cả
+      evn.balance += 450;
       ssDelta -= 12;
     } else if (evnOption === 4) {
-      // Cắt điện luân phiên: bảo vệ grid dài hạn nhưng hại xã hội ngắn hạn
+      // Cắt điện luân phiên: bảo vệ grid dài hạn nhưng hại xã hội
       grid_limit += 150;
       eh = Math.max(0, eh - 5);
       ssDelta -= 15;
@@ -299,7 +299,7 @@ export function triggerEvent(state: GameState): Partial<GameState> {
  * Scoring tường minh — phản ánh mục tiêu từng role:
  *   GENCO: balance + green_points × 15 (đã giảm từ 20 để cân bằng)
  *   CONSUMER: gdp_score × 2 + balance
- *   EVN: balance + (eh + ss) × 10
+ *   EVN: balance + (eh + ss) × 8
  *
  * ÁN PHẠT SỤP ĐỔ SỚM:
  *   Nếu hệ thống sụp đổ trước vòng 20:
@@ -313,7 +313,7 @@ export function computeFinalScore(player: Player, gameState: GameState): number 
   } else if (player.role === 'CONSUMER') {
     score = Math.round(player.gdp_score * 2 + player.balance);
   } else {
-    score = Math.round(player.balance + (gameState.eh + gameState.ss) * 10);
+    score = Math.round(player.balance + (gameState.eh + gameState.ss) * 8);
   }
 
   // Áp dụng án phạt nếu hệ thống sụp đổ trước vòng 20

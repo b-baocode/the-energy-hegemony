@@ -131,8 +131,13 @@ export const PlayerControls: React.FC<PlayerControlsProps> = ({ player, gameStat
       <header className="flex justify-between items-center mb-6 bg-white/90 p-4 rounded-2xl game-border-blue">
         <div>
           <h1 className="text-2xl font-mono font-bold text-blue-600">{player.custom_name?.trim() || player.group_name}</h1>
-          <div className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded inline-block border mt-1 ${ROLE_COLOR[player.role]}`}>
-            {player.role} Sector
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+            <div className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded inline-block border ${ROLE_COLOR[player.role]}`}>
+              {player.role} Sector
+            </div>
+            <div className="text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-0.5 rounded border border-gray-200">
+              Công thức: {player.role === 'GENCO' ? 'Balance + GP×15' : player.role === 'CONSUMER' ? 'GDP×2 + Balance' : 'Balance + (EH+SS)×8'}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">

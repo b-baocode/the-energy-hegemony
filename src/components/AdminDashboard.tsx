@@ -494,11 +494,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             .sort((a, b) => computeFinalScore(b, gameState) - computeFinalScore(a, gameState))
             .map((p, idx) => (
               <motion.div layout key={p.id} className={`flex items-center justify-between p-3 rounded-xl border-2 ${p.is_ready ? 'bg-green-50 border-green-400' : 'bg-white border-gray-200'}`}>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <span className="font-mono text-lg font-bold text-gray-200">#{idx + 1}</span>
                   <div>
                     <div className="font-bold">{p.custom_name?.trim() || p.group_name}</div>
-                    <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${ROLE_COLOR[p.role]}`}>{p.role}</span>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${ROLE_COLOR[p.role]}`}>{p.role}</span>
+                      <span className="text-[9px] font-mono text-gray-400 bg-gray-50 px-1 rounded border border-gray-100 hidden sm:inline-block">
+                        {p.role === 'GENCO' ? 'Balance + GP×15' : p.role === 'CONSUMER' ? 'GDP×2 + Balance' : 'Balance + (EH+SS)×8'}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="text-right">

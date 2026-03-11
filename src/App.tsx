@@ -123,19 +123,19 @@ const GameGuide: React.FC = () => {
                     
                     <div className="bg-red-50 rounded-xl p-4 border-2 border-red-300">
                       <div className="text-xs font-mono font-bold uppercase text-red-700 mb-2">🏛️ EVN — Nhà nước</div>
-                      <p className="text-xs leading-relaxed mb-3">Mục tiêu: Duy trì hệ thống. <b>×0.5</b> penalty nếu sập sớm.</p>
+                      <p className="text-xs leading-relaxed mb-3">Mục tiêu: Duy trì hệ thống. Điểm: <b>Balance + (EH+SS)×8</b>. <b>×0.5</b> penalty nếu sập sớm.</p>
                       <div className="space-y-2 text-xs">
                         <div className="bg-red-100/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-01: Nâng cấp lưới</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> -1200$.<br/><b>Chung:</b> Grid +25%.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> -1500$.<br/><b>Chung:</b> Grid +25%.</div>
                         </div>
                         <div className="bg-red-200/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-02: Áp trần giá bán</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> -800$.<br/><b>Chung:</b> SS +25%, CONSUMER +100$.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> -1200$.<br/><b>Chung:</b> SS +18%, CONSUMER +100$.</div>
                         </div>
                         <div className="bg-red-200/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-03: Tăng phí vận chuyển</div>
-                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +600$.<br/><b>Chung:</b> SS -12%, CONSUMER -200$.</div>
+                          <div className="text-gray-600 mt-1"><b>Riêng:</b> +450$.<br/><b>Chung:</b> SS -12%, CONSUMER -200$.</div>
                         </div>
                         <div className="bg-red-100/50 rounded p-2">
                           <div className="font-bold text-red-800">OP-04: Cắt điện luân phiên</div>

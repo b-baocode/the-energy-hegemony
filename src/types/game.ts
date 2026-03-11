@@ -118,19 +118,19 @@ export const EVN_OPTIONS: GameOption[] = [
   {
     id: 1,
     name: 'Nâng cấp lưới',
-    personal_impact: 'Tiền -1200 (đầu tư hạ tầng)',
+    personal_impact: 'Tiền -1500 (đầu tư hạ tầng)',
     system_impact: 'L_grid +25% — toàn hệ thống hưởng lợi (Lênin Đặc trưng 2)',
   },
   {
     id: 2,
     name: 'Áp trần giá bán',
-    personal_impact: 'Tiền -800 (hy sinh lợi nhuận)',
-    system_impact: 'SS +25, CONSUMER nhận +100$, +30 GDP (ổn định xã hội)',
+    personal_impact: 'Tiền -1200 (hy sinh lợi nhuận)',
+    system_impact: 'SS +18, CONSUMER nhận +100$, +30 GDP (ổn định xã hội)',
   },
   {
     id: 3,
     name: 'Tăng phí vận chuyển',
-    personal_impact: 'Tiền +600 (thu tô từ hạ tầng)',
+    personal_impact: 'Tiền +450 (thu tô từ hạ tầng)',
     system_impact: 'SS -12, CONSUMER mất -200$, -20 GDP (Lênin Đặc trưng 3)',
   },
   {
